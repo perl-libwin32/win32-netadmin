@@ -5,7 +5,7 @@ package Win32::NetAdmin;
 #Written by Douglas_Lankshear@ActiveWare.com
 #
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 require Exporter;
 require DynaLoader;
@@ -76,41 +76,46 @@ Win32::NetAdmin - manage network groups and users in perl
 
 =head1 DESCRIPTION
 
-This module offers control over the administration of groups and users over a network.
+This module offers control over the administration of groups and users over a
+network.
 
 =head1 FUNCTIONS
 
 =head2 NOTE
 
 All of the functions return FALSE (0) if they fail, unless otherwise noted.
-server is optional for all the calls below. (if not given the local machine is assumed.)
+C<server> is optional for all the calls below. If not given the local machine is
+assumed.
 
 =over 10
 
 =item GetDomainController(server, domain, returnedName)
 
-Return the name of the domain controller for server
+Returns the name of the domain controller for server.
 
 =item GetAnyDomainController(server, domain, returnedName)
 
-Return the name of any domain controller for a domain that is directly trusted
-by the server
+Returns the name of any domain controller for a domain that is directly trusted
+by the server.
 
 =item UserCreate(server, userName, password, passwordAge, privilege, homeDir, comment, flags, scriptPath)
 
-Creates a user on server with password, passwordAge, privilege, homeDir, comment, flags, and scriptPath
+Creates a user on server with password, passwordAge, privilege, homeDir, comment,
+flags, and scriptPath.
 
 =item UserDelete(server, user)
 
-Deletes a user from server
+Deletes a user from server.
 
 =item UserGetAttributes(server, userName, password, passwordAge, privilege, homeDir, comment, flags, scriptPath)
 
-Gets password, passwordAge, privilege, homeDir, comment, flags, and scriptPath for user
+Gets password, passwordAge, privilege, homeDir, comment, flags, and scriptPath
+for user.
 
 =item UserSetAttributes(server, userName, password, passwordAge, privilege, homeDir, comment, flags, scriptPath)
 
-Sets password, passwordAge, privilege, homeDir, comment, flags, and scriptPath for user
+Sets password, passwordAge, privilege, homeDir, comment, flags, and scriptPath
+for user.
 
 =item UserChangePassword(domainname, username, oldpassword, newpassword)
 
@@ -118,80 +123,94 @@ Changes a users password. Can be run under any account.
 
 =item UsersExist(server, userName)
 
-Checks if a User exists
+Checks if a user exists.
 
-=item GetUsers(server, filter, \@userArray)
+=item GetUsers(server, filter, userRef)
 
-Fills userArray with the all of the User names
+Fills userRef with user names if it is an array reference and with the user
+names and the full names if it is a hash reference.
 
 =item GroupCreate(server, group, comment)
 
-Creates a group
+Creates a group.
 
 =item GroupDelete(server, group)
 
-Deletes a group
+Deletes a group.
 
 =item GroupGetAttributes(server, groupName, comment)
 
-Gets the comment
+Gets the comment.
 
 =item GroupSetAttributes(server, groupName, comment)
 
-Sets the comment
+Sets the comment.
 
 =item GroupAddUsers(server, groupName, users)
 
-Adds a user to a group
+Adds a user to a group.
 
 =item GroupDeleteUsers(server, groupName, users)
 
-Deletes a users from a group
+Deletes a users from a group.
 
 =item GroupIsMember(server, groupName, user)
 
-Returns TRUE if user is a member of groupName
+Returns TRUE if user is a member of groupName.
 
-=item GroupGetMembers(server, groupName, \@userArray)
+=item GroupGetMembers(server, groupName, userArrayRef)
 
-Fills userArray with the members of groupName
+Fills userArrayRef with the members of groupName.
 
 =item LocalGroupCreate(server, group, comment)
 
-Creates a local group
+Creates a local group.
 
 =item LocalGroupDelete(server, group)
 
-Deletes a local group
+Deletes a local group.
 
 =item LocalGroupGetAttributes(server, groupName, comment)
 
-Gets the comment
+Gets the comment.
 
 =item LocalGroupSetAttributes(server, groupName, comment)
 
-Sets the comment
+Sets the comment.
 
 =item LocalGroupIsMember(server, groupName, user)
 
-Returns TRUE if user is a member of groupName
+Returns TRUE if user is a member of groupName.
 
-=item LocalGroupGetMembers(server, groupName, \@userArray)
+=item LocalGroupGetMembers(server, groupName, userArrayRef)
 
-Fills userArray with the members of groupName
+Fills userArrayRef with the members of groupName.
 
 =item LocalGroupAddUsers(server, groupName, users)
 
-Adds a user to a group
+Adds a user to a group.
 
 =item LocalGroupDeleteUsers(server, groupName, users)
 
-Deletes a users from a group
+Deletes a users from a group.
 
-=item GetServers(server, domain, flags, \@serverArray)
+=item GetServers(server, domain, flags, serverRef)
 
-Gets an array of server names
-	flags - see SV_TYPE_... in constants
+Gets an array of server names or an hash with the server names and the
+comments as seen in the Network Neighborhood or the server manager.
+For flags, see SV_TYPE_* constants.
+
+=item GetTransports(server, transportRef)
+
+Enumerates the network transports of a computer. If transportRef is an array
+reference, it is filled with the transport names. If transportRef is a hash
+reference then a hash of hashes is filled with the data for the transports.
+
+=item LoggedOnUsers(server, userRef)
+
+Gets an array or hash with the users logged on at the specified computer. If
+userRef is a hash reference, the value is a semikolon separated string of
+username, logon domain and logon server.
 
 =back
 

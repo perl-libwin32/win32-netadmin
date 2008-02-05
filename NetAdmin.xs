@@ -24,6 +24,7 @@
 #undef LPTSTR
 #define LPTSTR LPWSTR
 #include <lmServer.h>
+#include <lmwksta.h>
 #undef LPTSTR
 #define LPTSTR LPSTR
 #include "EXTERN.h"
@@ -422,6 +423,23 @@ WCTMB(LPWSTR lpwStr, LPSTR lpStr, int size)
     return WideCharToMultiByte(CP_ACP,NULL,lpwStr,-1,lpStr,size,NULL,NULL);
 }
 
+void AddStringToHV(HV *hv, char *key, char *value)
+{
+    char buffer[256];
+    if (value)
+	strcpy(buffer, value );
+    else
+	*buffer = '\0';
+    hv_store(hv, key, strlen(key), newSVpv(buffer, strlen(buffer)), 0);
+    return;
+}
+
+void AddDwordToHV(HV *hv, char *key, DWORD value )
+{
+    hv_store(hv, key, strlen(key), newSViv((DWORD)value), 0);
+    return;
+}
+
 static DWORD lastError = 0;
 
 XS(XS_NT__NetAdmin_GetError)
@@ -673,13 +691,16 @@ XS(XS_NT__NetAdmin_GetUsers)
     dXSARGS;
     LPWSTR lpwServer;
     char buffer[UNLEN+1];
+    char buffer1[UNLEN+1];
     PUSER_INFO_0 pwzUsers;
+    PUSER_INFO_10 pwzUsers10;
     DWORD filter, entriesRead, totalEntries, resumeHandle = 0;
     int index;
     SV *sv, *nSv;
+    SV *user;
 
     if (items != 3) {
-	croak("Usage: Win32::NetAdmin::GetUsers(server, filter, \\@userArray)\n");
+	croak("Usage: Win32::NetAdmin::GetUsers(server, filter, userRef)\n");
     }
     {	
 	filter = SvIV(ST(1));
@@ -705,9 +726,192 @@ XS(XS_NT__NetAdmin_GetUsers)
 	    } while(lastError == ERROR_MORE_DATA);
 	    FreeWideName(lpwServer);
 	}
+	else if( SvTYPE(sv) == SVt_PVHV) {
+	    hv_clear((HV*)sv);
+	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    do {
+		lastError = NetUserEnum(lpwServer,10, filter,
+					(LPBYTE*)&pwzUsers10, PREFLEN,
+					&entriesRead, &totalEntries,
+					&resumeHandle);
+		if (lastError != 0 && lastError != ERROR_MORE_DATA)
+		    break;
+		for (index = 0; index < entriesRead; ++index) {
+		    WCTMB(pwzUsers10[index].usri10_name, buffer, sizeof(buffer));
+		    WCTMB(pwzUsers10[index].usri10_full_name, buffer1,
+			  sizeof(buffer1));
+		    hv_store((HV*)sv, buffer, strlen(buffer),
+			     newSVpv(buffer1,0), 0 );
+		}
+		NetApiBufferFree(pwzUsers10);
+	    } while(lastError == ERROR_MORE_DATA);
+	    FreeWideName(lpwServer);
+	}
 	else {
 	    croak("Usage: Win32::NetAdmin::GetUsers(server, filter, "
-		  "\\@userArray)\nuserArray was not an array\n");
+		  "$userRef)\nuserRef was not an array or an hash\n");
+	}
+    }
+    RETURNRESULT(lastError == 0);
+}
+
+XS(XS_NT__NetAdmin_GetTransports)
+{
+    dXSARGS;
+    LPWSTR lpwServer;
+    char buffer[UNLEN+1];
+    char buffer1[UNLEN+1];
+    PWKSTA_TRANSPORT_INFO_0 pws;
+    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    int index;
+    SV *sv;
+    HV *hvTemp;
+
+    if (items != 2) {
+	croak("Usage: Win32::NetAdmin::GetTransport(server, transportRef)\n");
+    }
+    {
+	sv = ST(1);
+	if (SvROK(sv)) {
+	    sv = SvRV(sv);
+	}
+	if (SvTYPE(sv) == SVt_PVAV) {
+	    av_clear((AV*)sv);
+	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    do {
+		lastError = NetWkstaTransportEnum(lpwServer, 0,
+					  (LPBYTE*) &pws,
+					  PREFLEN, &entriesRead,
+					  &totalEntries, &resumeHandle);
+		if (lastError != 0 && lastError != ERROR_MORE_DATA)
+		    break;
+		for (index = 0; index < entriesRead; ++index) {
+		    WCTMB(pws[index].wkti0_transport_name, buffer,
+			  sizeof(buffer));
+		    av_push((AV*)sv, newSVpv(buffer, 0));
+		}
+		NetApiBufferFree(pws);
+	    } while(lastError == ERROR_MORE_DATA);
+	    FreeWideName(lpwServer);
+	}
+	else if( SvTYPE(sv) == SVt_PVHV) {
+	    hv_clear((HV*)sv);
+	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    do {
+		lastError = NetWkstaTransportEnum(lpwServer, 0,
+						  (LPBYTE*) &pws,
+						  PREFLEN, &entriesRead,
+						  &totalEntries, &resumeHandle);
+		if (lastError != 0 && lastError != ERROR_MORE_DATA)
+		    break;
+		for (index = 0; index < entriesRead; ++index) {
+		    hvTemp = newHV();
+		    hv_store(hvTemp,
+			     "quality_of_service",
+			     strlen("quality_of_service"),
+			     newSViv((long)pws[index].wkti0_quality_of_service), 0);
+		    hv_store(hvTemp,
+			     "number_of_vcs",
+			     strlen("number_of_vcs"),
+			     newSViv((long)pws[index].wkti0_number_of_vcs), 0);
+		    WCTMB(pws[index].wkti0_transport_name, buffer, sizeof(buffer));
+		    hv_store(hvTemp,
+			     "transport_name",
+			     strlen("transport_name"),
+			     newSVpv((char*) buffer, strlen((char *)buffer)), 0);
+		    WCTMB(pws[index].wkti0_transport_address,buffer1,sizeof(buffer1));
+		    hv_store(hvTemp,
+			     "transport_address",
+			     strlen("transport_address"),
+			     newSVpv((char*) buffer1, strlen((char *)buffer1)), 0);
+		    hv_store(hvTemp,"wan_ish", strlen("wan_ish"),
+			     newSViv((bool)pws[index].wkti0_wan_ish), 0);
+		    sprintf(buffer, "%d", pws[index].wkti0_quality_of_service);
+		    hv_store((HV*)sv, buffer, strlen(buffer),
+			     (SV*)newRV((SV*)hvTemp), 0 );
+		}
+		NetApiBufferFree(pws);
+	    } while(lastError == ERROR_MORE_DATA);
+	    FreeWideName(lpwServer);
+	}
+	else {
+	    croak("Usage: Win32::NetAdmin::GetTransport(server, "
+		  "$transportRef)\ntransportRef was not an array or hash\n");
+	}
+    }
+    RETURNRESULT(lastError == 0);
+}
+
+XS(XS_NT__NetAdmin_LoggedOnUsers)
+{
+    dXSARGS;
+    LPWSTR lpwServer;
+    char buffer[UNLEN+1];
+    char buffer1[UNLEN+1];
+    char logon_domain[UNLEN+1];
+    char logon_server[UNLEN+1];
+    PWKSTA_USER_INFO_0 pwzUser0;
+    PWKSTA_USER_INFO_1 pwzUser1;
+    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    int index;
+    SV *sv, *nSv;
+    SV *user;
+
+    if (items != 2) {
+	croak("Usage: Win32::NetAdmin::LoggedOnUsers(server, $userRef)\n");
+    }
+    {	
+	sv = ST(1);
+	if (SvROK(sv)) {
+	    sv = SvRV(sv);
+	}
+	if (SvTYPE(sv) == SVt_PVAV) {
+	    av_clear((AV*)sv);
+	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    do {
+		lastError = NetWkstaUserEnum(lpwServer, 0,
+					(LPBYTE*)&pwzUser0, PREFLEN,
+					&entriesRead, &totalEntries,
+					&resumeHandle);
+		if (lastError != 0 && lastError != ERROR_MORE_DATA)
+		    break;
+		for (index = 0; index < entriesRead; ++index) {
+		    WCTMB(pwzUser0[index].wkui0_username, buffer, sizeof(buffer));
+		    av_push((AV*)sv, newSVpv(buffer, 0));
+		}
+		NetApiBufferFree(pwzUser0);
+	    } while(lastError == ERROR_MORE_DATA);
+	    FreeWideName(lpwServer);
+	}
+	else if( SvTYPE(sv) == SVt_PVHV) {
+	    hv_clear((HV*)sv);
+	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    do {
+		lastError = NetWkstaUserEnum(lpwServer,1,
+					     (LPBYTE*)&pwzUser1, PREFLEN,
+					     &entriesRead, &totalEntries,
+					     &resumeHandle);
+		if (lastError != 0 && lastError != ERROR_MORE_DATA)
+		    break;
+		for (index = 0; index < entriesRead; ++index) {
+		    WCTMB(pwzUser1[index].wkui1_username, buffer, sizeof(buffer));
+		    WCTMB(pwzUser1[index].wkui1_logon_domain, logon_domain,
+			  sizeof(logon_domain));
+		    WCTMB(pwzUser1[index].wkui1_logon_server, logon_server,
+			  sizeof(logon_server));
+		    sprintf(buffer1,"%s;%s;%s", buffer, logon_domain,
+			    logon_server);
+		    sprintf(buffer, "%d", index);
+		    hv_store((HV*)sv, buffer, strlen(buffer),
+			     newSVpv(buffer1,0), 0 );
+		}
+		NetApiBufferFree(pwzUser1);
+	    } while(lastError == ERROR_MORE_DATA);
+	    FreeWideName(lpwServer);
+	}
+	else {
+	    croak("Usage: Win32::NetAdmin::LoggedOnUsers(server, "
+		  "$userRef)\nuserRef was not an array or an hash\n");
 	}
     }
     RETURNRESULT(lastError == 0);
@@ -1291,14 +1495,16 @@ XS(XS_NT__NetAdmin_GetServers)
     dXSARGS;
     LPWSTR lpwServer, lpwDomain;
     char buffer[UNLEN+1];
+    char buffer1[UNLEN+1];
     PSERVER_INFO_100 pwzServerInfo;
+    PSERVER_INFO_101 pwzServerInfo101;
     DWORD entriesRead, totalEntries, resumeHandle = 0;
     int index;
     SV *sv, *nSv;
 
     if (items != 4) {
 	croak("Usage: Win32::NetAdmin::GetServers(server, domain, flags, "
-	      "\\@serverArray)\n");
+	      "$serverRef)\n");
     }
     {
 	sv = ST(3);
@@ -1327,13 +1533,39 @@ XS(XS_NT__NetAdmin_GetServers)
 	    FreeWideName(lpwServer);
 	    FreeWideName(lpwDomain);
 	}
+	else if( SvTYPE(sv) == SVt_PVHV) {
+	    hv_clear((HV*)sv);
+	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    AllocWideName((char*)SvPV(ST(1),na), lpwDomain);
+	    do {
+		lastError = NetServerEnum(lpwServer, 101,
+					  (LPBYTE*) &pwzServerInfo101,
+					  PREFLEN, &entriesRead,
+					  &totalEntries, (DWORD)SvIV(ST(2)),
+					  lpwDomain, &resumeHandle);
+		if (lastError != 0 && lastError != ERROR_MORE_DATA)
+		    break;
+		for (index = 0; index < entriesRead; ++index) {
+		    WCTMB(pwzServerInfo101[index].sv101_name, buffer,
+			  sizeof(buffer));
+		    WCTMB(pwzServerInfo101[index].sv101_comment, buffer1,
+			  sizeof(buffer1));
+		    hv_store((HV*)sv, buffer, strlen(buffer),
+			     newSVpv(buffer1,0), 0 );
+		}
+		NetApiBufferFree(pwzServerInfo101);
+	    } while(lastError == ERROR_MORE_DATA);
+	    FreeWideName(lpwServer);
+	    FreeWideName(lpwDomain);
+	}
 	else {
 	    croak("Usage: Win32::NetAdmin::GetServers(server, domain, flags, "
-		  "\\@serverArray)\nserverArray was not an array\n");
+		  "$serverRef)\nserverRef was not an array or hash\n");
 	}
     }
     RETURNRESULT(lastError == 0);
 }
+
 
 XS(boot_Win32__NetAdmin)
 {
@@ -1350,6 +1582,7 @@ XS(boot_Win32__NetAdmin)
     newXS("Win32::NetAdmin::UserSetAttributes", XS_NT__NetAdmin_UserSetAttributes, file);
     newXS("Win32::NetAdmin::UsersExist", XS_NT__NetAdmin_UsersExist, file);
     newXS("Win32::NetAdmin::GetUsers", XS_NT__NetAdmin_GetUsers, file);
+    newXS("Win32::NetAdmin::LoggedOnUsers", XS_NT__NetAdmin_LoggedOnUsers, file);
     newXS("Win32::NetAdmin::GroupCreate", XS_NT__NetAdmin_GroupCreate, file);
     newXS("Win32::NetAdmin::GroupDelete", XS_NT__NetAdmin_GroupDelete, file);
     newXS("Win32::NetAdmin::GroupGetAttributes", XS_NT__NetAdmin_GroupGetAttributes, file);
@@ -1372,6 +1605,7 @@ XS(boot_Win32__NetAdmin)
     newXS("Win32::NetAdmin::LocalGroupIsMember", XS_NT__NetAdmin_LocalGroupIsMember, file);
     newXS("Win32::NetAdmin::LocalGroupGetMembers", XS_NT__NetAdmin_LocalGroupGetMembers, file);
     newXS("Win32::NetAdmin::GetServers", XS_NT__NetAdmin_GetServers, file);
+    newXS("Win32::NetAdmin::GetTransports", XS_NT__NetAdmin_GetTransports, file);
     ST(0) = &sv_yes;
     XSRETURN(1);
 }

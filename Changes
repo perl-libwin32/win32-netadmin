@@ -1,10 +1,18 @@
 Revision history for Perl extension Win32::NetAdmin.
 
-0.01  Sat Apr  5 14:24:05 1997
-	- original version; created by h2xs 1.18
-	- imported ActiveWare version
+
+0.03  Fri Feb  6 21:02:31 1998
+	- fixes and enhancements courtesy Jutta Klebe <jmk@exc.bybyte.de>
+	   * New functions: LoggedOnUsers(), GetTransports()
+	   * GetUsers() and GetServers() now accept hashrefs
+	- misc. pod fixes
+
 0.02  Sat Dec 13 19:11:52 1997
 	- Fixes for enumeration functions from Joe Doss <jdoss@levi.com>
 	- Various tweaks to the fixes
 	- Added changes in ActiveState version
+
+0.01  Sat Apr  5 14:24:05 1997
+	- original version; created by h2xs 1.18
+	- imported ActiveWare version
 
