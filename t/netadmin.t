@@ -14,7 +14,7 @@ Win32::NetAdmin::GetDomainController('', '', $serverName);
 
 $serverName = '';
 $userName = 'TestUser';
-$password = '';
+$password = 'password';
 $passwordAge = 0;
 $privilege = USER_PRIV_USER;
 $homeDir = 'c:\\';
@@ -24,21 +24,18 @@ $scriptpath = 'C:\\';
 $groupName = 'TestGroup';
 $groupComment = "This is a test group";
 
-print "1..16\n";
+print "1..15\n";
 
 # TODO: Check to make sure current account has rights to Create user accounts etc.
 
 Win32::NetAdmin::UserCreate($serverName, $userName, $password, $passwordAge, $privilege, $homeDir, $comment, $flags, $scriptpath) || print "not ";
 print "ok 1\n";
 
-Win32::NetAdmin::UserGetAttributes($serverName, $userName, $Getpassword, $GetpasswordAge, $Getprivilege, $GethomeDir, $Getcomment, $Getflags, $Getscriptpath) || print "not ";
+Win32::NetAdmin::UserGetAttributes($serverName, $userName, my $getpassword, $GetpasswordAge, $Getprivilege, $GethomeDir, $Getcomment, $Getflags, $Getscriptpath) || print "not ";
 print "ok 2\n";
 
-($password eq $Getpassword) || print "not ";
-print "ok 3\n";
-
 ($passwordAge == $GetpasswordAge) || print "not ";
-print "ok 4\n";
+print "ok 3\n";
 
 if($serverName eq '')
 {
@@ -49,38 +46,38 @@ else
 {
 	($privilege == $Getprivilege) || print "not ";
 }
-print "ok 5\n";
+print "ok 4\n";
 
 ($homeDir eq $GethomeDir) || print "not ";
-print "ok 6\n";
+print "ok 5\n";
 
 ($comment eq $Getcomment) || print "not ";
-print "ok 7\n";
+print "ok 6\n";
 
 ($flags == ($Getflags&USER_PRIV_MASK)) || print "not ";
-print "ok 8\n";
+print "ok 7\n";
 
 ($scriptpath eq $Getscriptpath) || print "not ";
-print "ok 9\n";
+print "ok 8\n";
 
 Win32::NetAdmin::LocalGroupCreate($serverName, $groupName, $groupComment) || print "not ";
-print "ok 10\n";
+print "ok 9\n";
 
 Win32::NetAdmin::LocalGroupGetAttributes($serverName, $groupName, $GetgroupComment) || print "not ";
-print "ok 11\n";
+print "ok 10\n";
 
 ($groupComment eq $GetgroupComment) || print "not ";
-print "ok 12\n";
+print "ok 11\n";
 
 Win32::NetAdmin::LocalGroupAddUsers($serverName, $groupName, $userName) || print "not ";
-print "ok 13\n";
+print "ok 12\n";
 
 Win32::NetAdmin::LocalGroupIsMember($serverName, $groupName, $userName) || print "not ";
-print "ok 14\n";
+print "ok 13\n";
 
 Win32::NetAdmin::LocalGroupDelete($serverName, $groupName) || print "not ";
-print "ok 15\n";
+print "ok 14\n";
 
 Win32::NetAdmin::UserDelete($serverName, $userName) || print "not ";
-print "ok 16\n";
+print "ok 15\n";
 
