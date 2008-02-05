@@ -33,6 +33,8 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#include "../ppport.h"
+
 #define RETURNRESULT(x)		if ((x)){ XST_mYES(0); }\
                      		else { XST_mNO(0); }\
                      		XSRETURN(1)
@@ -575,6 +577,7 @@ WCTMB(LPWSTR lpwStr, LPSTR lpStr, int size)
     return WideCharToMultiByte(CP_ACP,NULL,lpwStr,-1,lpStr,size,NULL,NULL);
 }
 
+/*
 void AddStringToHV(HV *hv, char *key, char *value)
 {
     char buffer[256];
@@ -598,27 +601,57 @@ void AddDwordToHV(HV *hv, char *key, DWORD value )
     hv_store(hv, key, strlen(key), newSVnv((double)value), 0);
     return;
 }
+*/
 
-DWORD GetAccountSID(LPCTSTR lpSystemName, LPCTSTR lpAccountName, PSID *pSid)
+DWORD GetAccountSIDA(LPCSTR lpSystemName, LPCSTR lpAccountName, PSID *pSid)
 {
     DWORD sidSize;
-    TCHAR refDomain[256];
+    char refDomain[256];
     DWORD refDomainSize;
     DWORD returnValue;
     SID_NAME_USE snu;
 
     sidSize = 0;
     refDomainSize=255;
-    LookupAccountName(lpSystemName, lpAccountName, *pSid,
+    LookupAccountNameA(lpSystemName, lpAccountName, *pSid,
 		      &sidSize, refDomain,
-		      &refDomainSize, &snu );
+		      &refDomainSize, &snu);
     returnValue = GetLastError();
-    if(ERROR_INSUFFICIENT_BUFFER != returnValue )
+    if(ERROR_INSUFFICIENT_BUFFER != returnValue)
 	return returnValue;
 
     *pSid = (PSID)malloc(sidSize);
     refDomainSize = 255;
-    if (!LookupAccountName (lpSystemName, lpAccountName, *pSid, &sidSize, 
+    if (!LookupAccountNameA(lpSystemName, lpAccountName, *pSid, &sidSize, 
+                            refDomain, &refDomainSize, &snu)) 
+    {
+	free(*pSid);
+	return GetLastError();
+    }
+
+    return ERROR_SUCCESS;
+}
+
+DWORD GetAccountSIDW(LPCWSTR lpSystemName, LPCWSTR lpAccountName, PSID *pSid)
+{
+    DWORD sidSize;
+    WCHAR refDomain[256];
+    DWORD refDomainSize;
+    DWORD returnValue;
+    SID_NAME_USE snu;
+
+    sidSize = 0;
+    refDomainSize=255;
+    LookupAccountNameW(lpSystemName, lpAccountName, *pSid,
+		      &sidSize, refDomain,
+		      &refDomainSize, &snu);
+    returnValue = GetLastError();
+    if(ERROR_INSUFFICIENT_BUFFER != returnValue)
+	return returnValue;
+
+    *pSid = (PSID)malloc(sidSize);
+    refDomainSize = 255;
+    if (!LookupAccountNameW(lpSystemName, lpAccountName, *pSid, &sidSize, 
                             refDomain, &refDomainSize, &snu)) 
     {
 	free(*pSid);
@@ -654,7 +687,7 @@ XS(XS_NT__NetAdmin_GetDomainController)
 	AllocWideName((char*)SvPV(ST(1),n_a), lpwDomain);
 	lastError = NetGetDCName(lpwServer, lpwDomain, (LPBYTE *)&lpwPrimaryDC);
 	if (lastError == 0) {
-	    WCTMB(lpwPrimaryDC, buffer, sizeof(buffer));
+	    W2AHELPER(lpwPrimaryDC, buffer, sizeof(buffer));
 	    SETPV(2, buffer);
 	    NetApiBufferFree(lpwPrimaryDC);
 	}
@@ -679,7 +712,7 @@ XS(XS_NT__NetAdmin_GetAnyDomainController)
 	AllocWideName((char*)SvPV(ST(1),n_a), lpwDomain);
 	lastError = NetGetAnyDCName(lpwServer, lpwDomain, (LPBYTE *)&lpwAnyDC);
 	if (lastError == 0) {
-	    WCTMB(lpwAnyDC, buffer, sizeof(buffer));
+	    W2AHELPER(lpwAnyDC, buffer, sizeof(buffer));
 	    SETPV(2, buffer);
 	    NetApiBufferFree(lpwAnyDC);
 	}
@@ -775,16 +808,16 @@ XS(XS_NT__NetAdmin_UserGetAttributes)
 	AllocWideName((char*)SvPV(ST(1),n_a), lpwUser);
 	lastError = NetUserGetInfo(lpwServer, lpwUser, 1, (LPBYTE*)&puiUser);
 	if (lastError == 0) {
-	    WCTMB(puiUser->usri1_password, buffer, sizeof(buffer));
+	    W2AHELPER(puiUser->usri1_password, buffer, sizeof(buffer));
 	    SETPV(2, buffer);
 	    SETIV(3, puiUser->usri1_password_age);
 	    SETIV(4, puiUser->usri1_priv);
-	    WCTMB(puiUser->usri1_home_dir, buffer, sizeof(buffer));
+	    W2AHELPER(puiUser->usri1_home_dir, buffer, sizeof(buffer));
 	    SETPV(5, buffer);
-	    WCTMB(puiUser->usri1_comment, buffer, sizeof(buffer));
+	    W2AHELPER(puiUser->usri1_comment, buffer, sizeof(buffer));
 	    SETPV(6, buffer);
 	    SETIV(7, puiUser->usri1_flags);
-	    WCTMB(puiUser->usri1_script_path, buffer, sizeof(buffer));
+	    W2AHELPER(puiUser->usri1_script_path, buffer, sizeof(buffer));
 	    SETPV(8, buffer);
 	    NetApiBufferFree(puiUser);
 	}
@@ -914,7 +947,7 @@ XS(XS_NT__NetAdmin_GetUsers)
 		if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		    break;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(pwzUsers[index].usri0_name, buffer, sizeof(buffer));
+		    W2AHELPER(pwzUsers[index].usri0_name, buffer, sizeof(buffer));
 		    av_push((AV*)sv, newSVpv(buffer, 0));
 		}
 		NetApiBufferFree(pwzUsers);
@@ -932,8 +965,8 @@ XS(XS_NT__NetAdmin_GetUsers)
 		if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		    break;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(pwzUsers10[index].usri10_name, buffer, sizeof(buffer));
-		    WCTMB(pwzUsers10[index].usri10_full_name, buffer1,
+		    W2AHELPER(pwzUsers10[index].usri10_name, buffer, sizeof(buffer));
+		    W2AHELPER(pwzUsers10[index].usri10_full_name, buffer1,
 			  sizeof(buffer1));
 		    hv_store((HV*)sv, buffer, strlen(buffer),
 			     newSVpv(buffer1,0), 0 );
@@ -982,7 +1015,7 @@ XS(XS_NT__NetAdmin_GetTransports)
 		if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		    break;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(pws[index].wkti0_transport_name, buffer,
+		    W2AHELPER(pws[index].wkti0_transport_name, buffer,
 			  sizeof(buffer));
 		    av_push((AV*)sv, newSVpv(buffer, 0));
 		}
@@ -1010,12 +1043,12 @@ XS(XS_NT__NetAdmin_GetTransports)
 			     "number_of_vcs",
 			     strlen("number_of_vcs"),
 			     newSViv((long)pws[index].wkti0_number_of_vcs), 0);
-		    WCTMB(pws[index].wkti0_transport_name, buffer, sizeof(buffer));
+		    W2AHELPER(pws[index].wkti0_transport_name, buffer, sizeof(buffer));
 		    hv_store(hvTemp,
 			     "transport_name",
 			     strlen("transport_name"),
 			     newSVpv((char*) buffer, strlen((char *)buffer)), 0);
-		    WCTMB(pws[index].wkti0_transport_address,buffer1,sizeof(buffer1));
+		    W2AHELPER(pws[index].wkti0_transport_address,buffer1,sizeof(buffer1));
 		    hv_store(hvTemp,
 			     "transport_address",
 			     strlen("transport_address"),
@@ -1073,7 +1106,7 @@ XS(XS_NT__NetAdmin_LoggedOnUsers)
 		if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		    break;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(pwzUser0[index].wkui0_username, buffer, sizeof(buffer));
+		    W2AHELPER(pwzUser0[index].wkui0_username, buffer, sizeof(buffer));
 		    av_push((AV*)sv, newSVpv(buffer, 0));
 		}
 		NetApiBufferFree(pwzUser0);
@@ -1091,10 +1124,10 @@ XS(XS_NT__NetAdmin_LoggedOnUsers)
 		if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		    break;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(pwzUser1[index].wkui1_username, buffer, sizeof(buffer));
-		    WCTMB(pwzUser1[index].wkui1_logon_domain, logon_domain,
+		    W2AHELPER(pwzUser1[index].wkui1_username, buffer, sizeof(buffer));
+		    W2AHELPER(pwzUser1[index].wkui1_logon_domain, logon_domain,
 			  sizeof(logon_domain));
-		    WCTMB(pwzUser1[index].wkui1_logon_server, logon_server,
+		    W2AHELPER(pwzUser1[index].wkui1_logon_server, logon_server,
 			  sizeof(logon_server));
 		    sprintf(buffer1,"%s;%s;%s", buffer, logon_domain,
 			    logon_server);
@@ -1172,7 +1205,7 @@ XS(XS_NT__NetAdmin_GroupGetAttributes)
 	lastError = NetGroupGetInfo(lpwServer, lpwGroup, 2,
 				    (LPBYTE*)&pgroupInfo);
 	if (lastError == 0) {
-	    WCTMB(pgroupInfo->grpi2_comment, buffer, sizeof(buffer));
+	    W2AHELPER(pgroupInfo->grpi2_comment, buffer, sizeof(buffer));
 	    SETPV(2, buffer);
 	    NetApiBufferFree(pgroupInfo);
 	}
@@ -1386,7 +1419,7 @@ XS(XS_NT__NetAdmin_GroupGetMembers)
 		if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		    break;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(pwzGroupUsers[index].grui0_name,
+		    W2AHELPER(pwzGroupUsers[index].grui0_name,
 			  buffer, sizeof(buffer));
 		    av_push((AV*)sv, newSVpv(buffer, 0));
 		}
@@ -1460,7 +1493,7 @@ XS(XS_NT__NetAdmin_LocalGroupGetAttributes)
 	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	lastError = NetLocalGroupGetInfo(lpwServer, lpwGroup, 1, (LPBYTE*)&pgroupInfo);
 	if (lastError == 0) {
-	    WCTMB(pgroupInfo->lgrpi1_comment, buffer, sizeof(buffer));
+	    W2AHELPER(pgroupInfo->lgrpi1_comment, buffer, sizeof(buffer));
 	    SETPV(2, buffer);
 	    NetApiBufferFree(pgroupInfo);
 	}
@@ -1605,9 +1638,19 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 	STRLEN n_a;
 #if 1
 	PSID pSid;
-	lastError = GetAccountSID((LPCTSTR)SvPV(ST(0),n_a),
-				  (LPCTSTR)SvPV(ST(2),n_a),
-				  &pSid);
+	if (USING_WIDE()) {
+	    WCHAR wSystemName[MAX_PATH+1];
+	    WCHAR wAccountName[MAX_PATH+1];
+	    A2WHELPER((LPCTSTR)SvPV(ST(0),n_a), wSystemName, sizeof(wSystemName));
+	    A2WHELPER((LPCTSTR)SvPV(ST(2),n_a), wAccountName, sizeof(wAccountName));
+	    lastError = GetAccountSIDW(wSystemName,
+				      wAccountName,
+				      &pSid);
+	}
+	else
+	    lastError = GetAccountSIDA((LPCTSTR)SvPV(ST(0),n_a),
+				      (LPCTSTR)SvPV(ST(2),n_a),
+				      &pSid);
 	if(ERROR_SUCCESS != lastError)
 	    XSRETURN_NO;
 		
@@ -1630,6 +1673,8 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 	    NetApiBufferFree(pwzMembersInfo);
 	} while(bReturn == FALSE &&
 		(lastError == ERROR_MORE_DATA ||  resumeHandle != 0));
+
+	free(pSid);
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
 #else
@@ -1695,7 +1740,7 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembers)
 		if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		    break;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(pwzMembersInfo[index].lgrmi1_name, buffer,
+		    W2AHELPER(pwzMembersInfo[index].lgrmi1_name, buffer,
 			  sizeof(buffer));
 		    av_push((AV*)sv, newSVpv(buffer, 0));
 		}
@@ -1746,7 +1791,7 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembersWithDomain)
 		if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		    break;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(pwzMembersInfo[index].lgrmi2_domainandname, buffer,
+		    W2AHELPER(pwzMembersInfo[index].lgrmi2_domainandname, buffer,
 			  sizeof(buffer));
 		    av_push((AV*)sv, newSVpv(buffer, 0));
 		}
@@ -1768,7 +1813,7 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembersWithDomain)
 		if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		    break;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(pwzMembersInfo[index].lgrmi2_domainandname, buffer,
+		    W2AHELPER(pwzMembersInfo[index].lgrmi2_domainandname, buffer,
 			  sizeof(buffer));
 		    sprintf(buffer1, "%d", pwzMembersInfo[index].lgrmi2_sidusage );
 		    hv_store((HV*)sv, buffer, strlen(buffer),
@@ -1822,7 +1867,7 @@ XS(XS_NT__NetAdmin_GetServers)
 		if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		    break;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(pwzServerInfo[index].sv100_name, buffer,
+		    W2AHELPER(pwzServerInfo[index].sv100_name, buffer,
 			  sizeof(buffer));
 		    av_push((AV*)sv, newSVpv(buffer, 0));
 		}
@@ -1844,9 +1889,9 @@ XS(XS_NT__NetAdmin_GetServers)
 		if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		    break;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(pwzServerInfo101[index].sv101_name, buffer,
+		    W2AHELPER(pwzServerInfo101[index].sv101_name, buffer,
 			  sizeof(buffer));
-		    WCTMB(pwzServerInfo101[index].sv101_comment, buffer1,
+		    W2AHELPER(pwzServerInfo101[index].sv101_comment, buffer1,
 			  sizeof(buffer1));
 		    hv_store((HV*)sv, buffer, strlen(buffer),
 			     newSVpv(buffer1,0), 0 );
@@ -1897,7 +1942,7 @@ XS(XS_NT__NetAdmin_GetServerDisks)
 		    break;
 		p = disks;
 		for (index = 0; index < entriesRead; ++index) {
-		    WCTMB(p, buffer, sizeof(buffer));
+		    W2AHELPER(p, buffer, sizeof(buffer));
 		    av_push((AV*)sv, newSVpv(buffer, strlen(buffer)));
 		    p += 3;
 		}
@@ -1947,7 +1992,7 @@ XS(XS_NT__NetAdmin_GetAliasFromRID)
 	}
 	if(bSuccess)
 	{
-	    WCTMB(Name, buffer, sizeof(buffer));
+	    W2AHELPER(Name, buffer, sizeof(buffer));
 	    SETPV(2,buffer);
 	}
 	FreeWideName(lpwServer);
@@ -2032,7 +2077,7 @@ XS(XS_NT__NetAdmin_GetUserGroupFromRID)
 	NetApiBufferFree(umi2);
 	if(bSuccess)
 	{
-	    WCTMB(Name, buffer, sizeof(buffer));
+	    W2AHELPER(Name, buffer, sizeof(buffer));
 	    SETPV(2,buffer);
 	}
 	FreeWideName(lpwServer);

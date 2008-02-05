@@ -5,7 +5,7 @@ package Win32::NetAdmin;
 #Written by Douglas_Lankshear@ActiveWare.com
 #
 
-$VERSION = '0.062';
+$VERSION = '0.07';
 
 require Exporter;
 require DynaLoader;
