@@ -12,6 +12,7 @@ use Win32::NetAdmin;
 
 Win32::NetAdmin::GetDomainController('', '', $serverName);
 
+$serverName = '';
 $userName = 'TestUser';
 $password = '';
 $passwordAge = 0;
