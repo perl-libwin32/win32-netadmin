@@ -33,6 +33,18 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#ifndef A2WHELPER
+#  define A2WHELPER_LEN(lpa, alen, lpw, nBytes)\
+    (lpw[0] = 0, MultiByteToWideChar((IN_BYTES) ? CP_ACP : CP_UTF8, 0, \
+				    lpa, alen, lpw, (nBytes/sizeof(WCHAR))))
+#  define A2WHELPER(lpa, lpw, nBytes)	A2WHELPER_LEN(lpa, -1, lpw, nBytes)
+
+#  define W2AHELPER_LEN(lpw, wlen, lpa, nChars)\
+    (lpa[0] = '\0', WideCharToMultiByte((IN_BYTES) ? CP_ACP : CP_UTF8, 0, \
+				       lpw, wlen, (LPSTR)lpa, nChars,NULL,NULL))
+#  define W2AHELPER(lpw, lpa, nChars)	W2AHELPER_LEN(lpw, -1, lpa, nChars)
+#endif
+
 #include "../ppport.h"
 
 #define RETURNRESULT(x)		if ((x)){ XST_mYES(0); }\
@@ -556,7 +568,7 @@ _AllocWideName(char* name)
 	length = (strlen(name)+1) * sizeof(WCHAR);
 	lpPtr = (LPWSTR)malloc(length);
 	if (lpPtr != NULL)
-	    MultiByteToWideChar(CP_ACP, NULL, name, -1, lpPtr, length);
+	    MultiByteToWideChar(CP_ACP, 0, name, -1, lpPtr, length);
     }
     return lpPtr;
 }
@@ -574,7 +586,7 @@ int
 WCTMB(LPWSTR lpwStr, LPSTR lpStr, int size)
 {
     *lpStr = '\0';
-    return WideCharToMultiByte(CP_ACP,NULL,lpwStr,-1,lpStr,size,NULL,NULL);
+    return WideCharToMultiByte(CP_ACP, 0, lpwStr, -1, lpStr, size, NULL, 0);
 }
 
 /*
@@ -902,7 +914,6 @@ XS(XS_NT__NetAdmin_UserChangePassword)
 XS(XS_NT__NetAdmin_UsersExist)
 {
     dXSARGS;
-    char buffer[UNLEN+1];
     LPWSTR lpwServer, lpwUser;
     PUSER_INFO_0 puiUser;
     BOOL bReturn = FALSE;
@@ -936,9 +947,8 @@ XS(XS_NT__NetAdmin_GetUsers)
     PUSER_INFO_0 pwzUsers;
     PUSER_INFO_10 pwzUsers10;
     DWORD filter, entriesRead, totalEntries, resumeHandle = 0;
-    int index;
-    SV *sv, *nSv;
-    SV *user;
+    DWORD index;
+    SV *sv;
     DWORD lastError = 0;
 
     if (items != 3) {
@@ -1007,7 +1017,7 @@ XS(XS_NT__NetAdmin_GetTransports)
     char buffer1[UNLEN+1];
     PWKSTA_TRANSPORT_INFO_0 pws;
     DWORD entriesRead, totalEntries, resumeHandle = 0;
-    int index;
+    DWORD index;
     SV *sv;
     HV *hvTemp;
     DWORD lastError = 0;
@@ -1100,9 +1110,8 @@ XS(XS_NT__NetAdmin_LoggedOnUsers)
     PWKSTA_USER_INFO_0 pwzUser0;
     PWKSTA_USER_INFO_1 pwzUser1;
     DWORD entriesRead, totalEntries, resumeHandle = 0;
-    int index;
-    SV *sv, *nSv;
-    SV *user;
+    DWORD index;
+    SV *sv;
     DWORD lastError = 0;
 
     if (items != 2) {
@@ -1295,7 +1304,7 @@ XS(XS_NT__NetAdmin_GroupAddUsers)
 	    for (index = 0; index <= count; ++index) {
 		psv = av_fetch((AV*)sv, index, 0);
 		if (psv != NULL) {
-		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,n_a),
+		    MultiByteToWideChar(CP_ACP, 0, (char*)SvPV(*psv,n_a),
 					-1, wzUser, sizeof(wzUser));
 		    lastError = NetGroupAddUser(lpwServer, lpwGroup, wzUser);
 		    if (lastError != 0)
@@ -1304,7 +1313,7 @@ XS(XS_NT__NetAdmin_GroupAddUsers)
 	    }
 	    break;
 	default:
-	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,n_a),
+	    MultiByteToWideChar(CP_ACP, 0, (char*)SvPV(sv,n_a),
 				-1, wzUser, sizeof(wzUser));
 	    lastError = NetGroupAddUser(lpwServer, lpwGroup, wzUser);
 	    break;
@@ -1342,7 +1351,7 @@ XS(XS_NT__NetAdmin_GroupDeleteUsers)
 	    for (index = 0; index <= count; ++index) {
 		psv = av_fetch((AV*)sv, index, 0);
 		if (psv != NULL) {
-		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,n_a),
+		    MultiByteToWideChar(CP_ACP, 0, (char*)SvPV(*psv,n_a),
 					-1, wzUser, sizeof(wzUser));
 		    lastError = NetGroupDelUser(lpwServer, lpwGroup, wzUser);
 		    if (lastError != 0)
@@ -1351,7 +1360,7 @@ XS(XS_NT__NetAdmin_GroupDeleteUsers)
 	    }
 	    break;
 	default:
-	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,n_a),
+	    MultiByteToWideChar(CP_ACP, 0, (char*)SvPV(sv,n_a),
 				-1, wzUser, sizeof(wzUser));
 	    lastError = NetGroupDelUser(lpwServer, lpwGroup, wzUser);
 	    break;
@@ -1369,7 +1378,7 @@ XS(XS_NT__NetAdmin_GroupIsMember)
     LPWSTR lpwServer, lpwGroup, lpwUser;
     PGROUP_USERS_INFO_0 pwzGroupUsers;
     DWORD entriesRead, totalEntries, resumeHandle = 0;
-    int index;
+    DWORD index;
     BOOL bReturn = FALSE;
     DWORD lastError = 0;
 
@@ -1429,9 +1438,9 @@ XS(XS_NT__NetAdmin_GroupGetMembers)
     char buffer[UNLEN+1];
     PGROUP_USERS_INFO_0 pwzGroupUsers;
     DWORD entriesRead, totalEntries;
-    size_t resumeHandle = 0;
-    int index;
-    SV *sv, *nSv;
+    DWORD resumeHandle = 0;
+    DWORD index;
+    SV *sv;
     DWORD lastError = 0;
 
     if (items != 3) {
@@ -1598,7 +1607,7 @@ XS(XS_NT__NetAdmin_LocalGroupAddUsers)
 	    for (index = 0; index <= count; ++index) {
 		psv = av_fetch((AV*)sv, index, 0);
 		if (psv != NULL) {
-		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,n_a),
+		    MultiByteToWideChar(CP_ACP, 0, (char*)SvPV(*psv,n_a),
 					-1, wzUser, sizeof(wzUser));
 		    lastError = NetLocalGroupAddMembers(lpwServer, lpwGroup, 3,
 							(LPBYTE)&lgmi3MembersInfo, 1);
@@ -1608,7 +1617,7 @@ XS(XS_NT__NetAdmin_LocalGroupAddUsers)
 	    }
 	    break;
 	default:
-	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,n_a), -1,
+	    MultiByteToWideChar(CP_ACP, 0, (char*)SvPV(sv,n_a), -1,
 				wzUser, sizeof(wzUser));
 	    lastError = NetLocalGroupAddMembers(lpwServer, lpwGroup, 3,
 						(LPBYTE)&lgmi3MembersInfo, 1);
@@ -1649,7 +1658,7 @@ XS(XS_NT__NetAdmin_LocalGroupDeleteUsers)
 	    for (index = 0; index <= count; ++index) {
 		psv = av_fetch((AV*)sv, index, 0);
 		if (psv != NULL) {
-		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,n_a),
+		    MultiByteToWideChar(CP_ACP, 0, (char*)SvPV(*psv,n_a),
 					-1, wzUser, sizeof(wzUser));
 		    lastError = NetLocalGroupDelMembers(lpwServer, lpwGroup, 3,
 							(LPBYTE)&lgmi3MembersInfo, 1);
@@ -1659,7 +1668,7 @@ XS(XS_NT__NetAdmin_LocalGroupDeleteUsers)
 	    }
 	    break;
 	default:
-	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,n_a), -1,
+	    MultiByteToWideChar(CP_ACP, 0, (char*)SvPV(sv,n_a), -1,
 				wzUser, sizeof(wzUser));
 	    lastError = NetLocalGroupDelMembers(lpwServer, lpwGroup, 3,
 						(LPBYTE)&lgmi3MembersInfo, 1);
@@ -1675,10 +1684,10 @@ XS(XS_NT__NetAdmin_LocalGroupDeleteUsers)
 XS(XS_NT__NetAdmin_LocalGroupIsMember)
 {
     dXSARGS;
-    LPWSTR lpwServer, lpwGroup, lpwUser;
+    LPWSTR lpwServer, lpwGroup;
     DWORD entriesRead, totalEntries;
-    size_t resumeHandle = 0;
-    int index;
+    DWORD resumeHandle = 0;
+    DWORD index;
     BOOL bReturn = FALSE;
     DWORD lastError = 0;
 
@@ -1689,22 +1698,12 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 	STRLEN n_a;
 #if 1
 	PSID pSid;
-	if (USING_WIDE()) {
-	    WCHAR wSystemName[MAX_PATH+1];
-	    WCHAR wAccountName[MAX_PATH+1];
-	    A2WHELPER((LPCTSTR)SvPV(ST(0),n_a), wSystemName, sizeof(wSystemName));
-	    A2WHELPER((LPCTSTR)SvPV(ST(2),n_a), wAccountName, sizeof(wAccountName));
-	    lastError = GetAccountSIDW(wSystemName,
-				      wAccountName,
-				      &pSid);
-	}
-	else
-	    lastError = GetAccountSIDA((LPCTSTR)SvPV(ST(0),n_a),
-				      (LPCTSTR)SvPV(ST(2),n_a),
-				      &pSid);
+        lastError = GetAccountSIDA((LPCTSTR)SvPV(ST(0),n_a),
+                                   (LPCTSTR)SvPV(ST(2),n_a),
+                                   &pSid);
 	if(ERROR_SUCCESS != lastError)
 	    XSRETURN_NO;
-		
+
 	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
 	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	do {
@@ -1767,9 +1766,9 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembers)
     char buffer[UNLEN+1];
     PLOCALGROUP_MEMBERS_INFO_1 pwzMembersInfo;
     DWORD entriesRead, totalEntries;
-    size_t resumeHandle = 0;
-    int index;
-    SV *sv, *nSv;
+    DWORD resumeHandle = 0;
+    DWORD index;
+    SV *sv;
     DWORD lastError = 0;
 
     if (items != 3) {
@@ -1821,9 +1820,9 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembersWithDomain)
     char buffer1[UNLEN+1];
     PLOCALGROUP_MEMBERS_INFO_2 pwzMembersInfo;
     DWORD entriesRead, totalEntries;
-    size_t resumeHandle = 0;
-    int index;
-    SV *sv, *nSv;
+    DWORD resumeHandle = 0;
+    DWORD index;
+    SV *sv;
     DWORD lastError = 0;
 
     if (items != 3) {
@@ -1899,8 +1898,8 @@ XS(XS_NT__NetAdmin_GetServers)
     PSERVER_INFO_100 pwzServerInfo;
     PSERVER_INFO_101 pwzServerInfo101;
     DWORD entriesRead, totalEntries, resumeHandle = 0;
-    int index;
-    SV *sv, *nSv;
+    DWORD index;
+    SV *sv;
     DWORD lastError = 0;
 
     if (items != 4) {
@@ -1977,8 +1976,8 @@ XS(XS_NT__NetAdmin_GetServerDisks)
     LPWSTR disks;
     LPWSTR p;
     DWORD entriesRead, totalEntries, resumeHandle = 0;
-    int index;
-    SV *sv, *nSv;
+    DWORD index;
+    SV *sv;
     DWORD lastError = 0;
 
     if (items != 2) {

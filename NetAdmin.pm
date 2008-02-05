@@ -10,7 +10,8 @@ $VERSION = '0.08';
 require Exporter;
 require DynaLoader;
 
-die "The Win32::NetAdmin module works only on Windows NT" if(!Win32::IsWinNT() );
+require Win32 unless defined &Win32::IsWinNT;
+die "The Win32::NetAdmin module works only on Windows NT" unless Win32::IsWinNT();
 
 @ISA= qw( Exporter DynaLoader );
 # Items to export into callers namespace by default. Note: do not export

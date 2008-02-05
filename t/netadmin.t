@@ -1,11 +1,12 @@
 #test for Perl NetAdmin Module Extension.
 #Written by Douglas_Lankshear@ActiveWare.com
 
-BEGIN{
-	if( Win32::IsWin95() ){
-		print"1..1\nok 1\n";
-		die" This module does not work on Win95\n";
-	}
+BEGIN {
+    require Win32 unless defined &Win32::IsWin95;
+    if (Win32::IsWin95) {
+	print"1..0 # skip This module does not work on Win95\n";
+	exit 0;
+    }
 };
 
 use Win32::NetAdmin;
