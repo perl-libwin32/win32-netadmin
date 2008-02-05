@@ -1,0 +1,6 @@
+Changes
+Makefile.PL
+MANIFEST
+NetAdmin.pm
+NetAdmin.xs
+t/netadmin.t
