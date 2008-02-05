@@ -3,4 +3,8 @@ Revision history for Perl extension Win32::NetAdmin.
 0.01  Sat Apr  5 14:24:05 1997
 	- original version; created by h2xs 1.18
 	- imported ActiveWare version
+0.02  Sat Dec 13 19:11:52 1997
+	- Fixes for enumeration functions from Joe Doss <jdoss@levi.com>
+	- Various tweaks to the fixes
+	- Added changes in ActiveState version
 

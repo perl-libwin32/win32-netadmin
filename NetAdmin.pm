@@ -5,7 +5,7 @@ package Win32::NetAdmin;
 #Written by Douglas_Lankshear@ActiveWare.com
 #
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 require Exporter;
 require DynaLoader;
@@ -91,6 +91,11 @@ server is optional for all the calls below. (if not given the local machine is a
 
 Return the name of the domain controller for server
 
+=item GetAnyDomainController(server, domain, returnedName)
+
+Return the name of any domain controller for a domain that is directly trusted
+by the server
+
 =item UserCreate(server, userName, password, passwordAge, privilege, homeDir, comment, flags, scriptPath)
 
 Creates a user on server with password, passwordAge, privilege, homeDir, comment, flags, and scriptPath
@@ -139,7 +144,7 @@ Sets the comment
 
 Adds a user to a group
 
-=item GroupDelUsers(server, groupName, users)
+=item GroupDeleteUsers(server, groupName, users)
 
 Deletes a users from a group
 
@@ -179,7 +184,7 @@ Fills userArray with the members of groupName
 
 Adds a user to a group
 
-=item LocalGroupDelUsers(server, groupName, users)
+=item LocalGroupDeleteUsers(server, groupName, users)
 
 Deletes a users from a group
 
@@ -193,10 +198,6 @@ Gets an array of server names
 =cut
 
 sub AUTOLOAD {
-    # This AUTOLOAD is used to 'autoload' constants from the constant()
-    # XS function.  If a constant is not found then control is passed
-    # to the AUTOLOAD in AutoLoader.
-
     my($constname);
     ($constname = $AUTOLOAD) =~ s/.*:://;
     #reset $! to zero to reset any current errors.
@@ -217,10 +218,6 @@ sub AUTOLOAD {
 }
 
 bootstrap Win32::NetAdmin;
-
-# Preloaded methods go here.
-
-# Autoload methods go after __END__, and are processed by the autosplit program.
 
 1;
 __END__

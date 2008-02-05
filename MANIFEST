@@ -1,6 +1,6 @@
 Changes
-Makefile.PL
 MANIFEST
+Makefile.PL
 NetAdmin.pm
 NetAdmin.xs
 t/netadmin.t
