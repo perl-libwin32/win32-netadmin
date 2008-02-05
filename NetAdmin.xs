@@ -12,6 +12,8 @@
  * Fixed resumeHandle operation on all Enum calls
  *    97.09.29 jdoss@levi.com
  *
+ * Added LocalGroupGetMembersWithDomain
+ *    98.02.13 david.gardiner@unisa.edu.au
  */
 
 #define WIN32_LEAN_AND_MEAN
@@ -53,6 +55,90 @@ constant(char *name)
     case 'C':
 	break;
     case 'D':
+	if (strEQ(name, "DOMAIN_ALIAS_RID_ACCOUNT_OPS"))
+#ifdef DOMAIN_ALIAS_RID_ACCOUNT_OPS
+	    return DOMAIN_ALIAS_RID_ACCOUNT_OPS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_ALIAS_RID_ADMINS"))
+#ifdef DOMAIN_ALIAS_RID_ADMINS
+	    return DOMAIN_ALIAS_RID_ADMINS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_ALIAS_RID_BACKUP_OPS"))
+#ifdef DOMAIN_ALIAS_RID_BACKUP_OPS
+	    return DOMAIN_ALIAS_RID_BACKUP_OPS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_ALIAS_RID_GUESTS"))
+#ifdef DOMAIN_ALIAS_RID_GUESTS
+	    return DOMAIN_ALIAS_RID_GUESTS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_ALIAS_RID_POWER_USERS"))
+#ifdef DOMAIN_ALIAS_RID_POWER_USERS
+	    return DOMAIN_ALIAS_RID_POWER_USERS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_ALIAS_RID_PRINT_OPS"))
+#ifdef DOMAIN_ALIAS_RID_PRINT_OPS
+	    return DOMAIN_ALIAS_RID_PRINT_OPS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_ALIAS_RID_REPLICATOR"))
+#ifdef DOMAIN_ALIAS_RID_REPLICATOR
+	    return DOMAIN_ALIAS_RID_REPLICATOR;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_ALIAS_RID_SYSTEM_OPS"))
+#ifdef DOMAIN_ALIAS_RID_SYSTEM_OPS
+	    return DOMAIN_ALIAS_RID_SYSTEM_OPS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_ALIAS_RID_USERS"))
+#ifdef DOMAIN_ALIAS_RID_USERS
+	    return DOMAIN_ALIAS_RID_USERS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_GROUP_RID_ADMINS"))
+#ifdef DOMAIN_GROUP_RID_ADMINS
+	    return DOMAIN_GROUP_RID_ADMINS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_GROUP_RID_GUESTS"))
+#ifdef DOMAIN_GROUP_RID_GUESTS
+	    return DOMAIN_GROUP_RID_GUESTS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_GROUP_RID_USERS"))
+#ifdef DOMAIN_GROUP_RID_USERS
+	    return DOMAIN_GROUP_RID_USERS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_USER_RID_ADMIN"))
+#ifdef DOMAIN_USER_RID_ADMIN
+	    return DOMAIN_USER_RID_ADMIN;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "DOMAIN_USER_RID_GUEST"))
+#ifdef DOMAIN_USER_RID_GUEST
+	    return DOMAIN_USER_RID_GUEST;
+#else
+	    goto not_there;
+#endif
 	break;
     case 'E':
 	break;
@@ -126,6 +212,60 @@ constant(char *name)
 #else
 	    goto not_there;
 #endif
+	if (strEQ(name, "SV_TYPE_SERVER_MFPN"))
+#ifdef SV_TYPE_SERVER_MFPN
+	    return SV_TYPE_SERVER_MFPN;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "SV_TYPE_SERVER_NT"))
+#ifdef SV_TYPE_SERVER_NT
+	    return SV_TYPE_SERVER_NT;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "SV_TYPE_SERVER_OSF"))
+#ifdef SV_TYPE_SERVER_OSF
+	    return SV_TYPE_SERVER_OSF;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "SV_TYPE_SERVER_UNIX"))
+#ifdef SV_TYPE_SERVER_UNIX
+	    return SV_TYPE_SERVER_UNIX;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "SV_TYPE_SERVER_VMS"))
+#ifdef SV_TYPE_SERVER_VMS
+	    return SV_TYPE_SERVER_VMS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "SV_TYPE_WINDOWS"))
+#ifdef SV_TYPE_WINDOWS
+	    return SV_TYPE_WINDOWS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "SV_TYPE_DFS"))
+#ifdef SV_TYPE_DFS
+	    return SV_TYPE_DFS;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "SV_TYPE_ALTERNATE_XPORT"))
+#ifdef SV_TYPE_ALTERNATE_XPORT
+	    return SV_TYPE_ALTERNATE_XPORT;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "SV_TYPE_LOCAL_LIST_ONLY"))
+#ifdef SV_TYPE_LOCAL_LIST_ONLY
+	    return SV_TYPE_LOCAL_LIST_ONLY;
+#else
+	    goto not_there;
+#endif
 	if (strEQ(name, "SV_TYPE_SQLSERVER"))
 #ifdef SV_TYPE_SQLSERVER
 	    return SV_TYPE_SQLSERVER;
@@ -169,14 +309,26 @@ constant(char *name)
 	    goto not_there;
 #endif
 	if (strEQ(name, "SV_TYPE_PRINT"))
-#ifdef SV_TYPE_PRINT
-	    return SV_TYPE_PRINT;
+#ifdef SV_TYPE_PRINTQ_SERVER
+	    return SV_TYPE_PRINTQ_SERVER;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "SV_TYPE_PRINTQ_SERVER"))
+#ifdef SV_TYPE_PRINTQ_SERVER
+	    return SV_TYPE_PRINTQ_SERVER;
 #else
 	    goto not_there;
 #endif
 	if (strEQ(name, "SV_TYPE_DIALIN"))
-#ifdef SV_TYPE_DIALIN
-	    return SV_TYPE_DIALIN;
+#ifdef SV_TYPE_DIALIN_SERVER
+	    return SV_TYPE_DIALIN_SERVER;
+#else
+	    goto not_there;
+#endif
+	if (strEQ(name, "SV_TYPE_DIALIN_SERVER"))
+#ifdef SV_TYPE_DIALIN_SERVER
+	    return SV_TYPE_DIALIN_SERVER;
 #else
 	    goto not_there;
 #endif
@@ -434,11 +586,48 @@ void AddStringToHV(HV *hv, char *key, char *value)
     return;
 }
 
+void AddWCStringToHV(HV *hv, char *key, LPWSTR value)
+{
+    char buffer[UNLEN+2];
+    WCTMB(value, buffer, sizeof(buffer));
+    AddStringToHV(hv, key, buffer);
+}
+
 void AddDwordToHV(HV *hv, char *key, DWORD value )
 {
-    hv_store(hv, key, strlen(key), newSViv((DWORD)value), 0);
+    hv_store(hv, key, strlen(key), newSVnv((double)value), 0);
     return;
 }
+
+DWORD GetAccountSID(LPCTSTR lpSystemName, LPCTSTR lpAccountName, PSID *pSid)
+{
+    DWORD sidSize;
+    TCHAR refDomain[256];
+    DWORD refDomainSize;
+    DWORD returnValue;
+    SID_NAME_USE snu;
+
+    sidSize = 0;
+    refDomainSize=255;
+    LookupAccountName(lpSystemName, lpAccountName, *pSid,
+		      &sidSize, refDomain,
+		      &refDomainSize, &snu );
+    returnValue = GetLastError();
+    if(ERROR_INSUFFICIENT_BUFFER != returnValue )
+	return returnValue;
+
+    *pSid = (PSID)malloc(sidSize);
+    refDomainSize = 255;
+    if (!LookupAccountName (lpSystemName, lpAccountName, *pSid, &sidSize, 
+                            refDomain, &refDomainSize, &snu)) 
+    {
+	free(*pSid);
+	return GetLastError();
+    }
+
+    return ERROR_SUCCESS;
+}
+
 
 static DWORD lastError = 0;
 
@@ -631,8 +820,6 @@ XS(XS_NT__NetAdmin_UserSetAttributes)
     RETURNRESULT(lastError == 0);
 }
 
-#if (_MSC_VER >= 1000)
-
 XS(XS_NT__NetAdmin_UserChangePassword)
 {
     dXSARGS;
@@ -658,8 +845,6 @@ XS(XS_NT__NetAdmin_UserChangePassword)
     }
     RETURNRESULT(lastError == 0);
 }
-
-#endif
 
 XS(XS_NT__NetAdmin_UsersExist)
 {
@@ -1135,11 +1320,12 @@ XS(XS_NT__NetAdmin_GroupIsMember)
 	    // should check that entriesRead == totalEntries and redo if not
 	    // but 'this should not happen' if PREFLEN is sufficiently large...
 	    PGROUP_USERS_INFO_0 lpGroupInfo = pwzGroupUsers;
-	    for (index = 0; index < entriesRead; index++, lpGroupInfo++)
+	    for (index = 0; index < entriesRead; index++, lpGroupInfo++) {
 		if (lstrcmpiW(lpwGroup, lpGroupInfo->grui0_name) == 0) {
 		    bReturn = TRUE;
 		    break;
 		}
+	    }
 	    NetApiBufferFree(pwzGroupUsers);
 	}
 #endif
@@ -1282,8 +1468,6 @@ XS(XS_NT__NetAdmin_LocalGroupSetAttributes)
     RETURNRESULT(lastError == 0);
 }
 
-#if (_MSC_VER >= 1000)
-
 XS(XS_NT__NetAdmin_LocalGroupAddUsers)
 {
     dXSARGS;
@@ -1380,8 +1564,6 @@ XS(XS_NT__NetAdmin_LocalGroupDeleteUsers)
     RETURNRESULT(lastError == 0);
 }
 
-#endif
-
 XS(XS_NT__NetAdmin_LocalGroupIsMember)
 {
     dXSARGS;
@@ -1394,20 +1576,26 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 	croak("Usage: Win32::NetAdmin::LocalGroupIsMember(server, groupName, user)\n");
     }
     {
+#if 1
+	PSID pSid;
+	lastError = GetAccountSID((LPCTSTR)SvPV(ST(0),na),
+				  (LPCTSTR)SvPV(ST(2),na),
+				  &pSid);
+	if(ERROR_SUCCESS != lastError)
+	    XSRETURN_NO;
+		
 	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
 	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
-	AllocWideName((char*)SvPV(ST(2),na), lpwUser);
-#if 0
 	do {
-	    PLOCALGROUP_MEMBERS_INFO_1 pwzMembersInfo;
-	    lastError = NetLocalGroupGetMembers(lpwServer, lpwGroup, 1,
+	    PLOCALGROUP_MEMBERS_INFO_0 pwzMembersInfo;
+	    lastError = NetLocalGroupGetMembers(lpwServer, lpwGroup, 0,
 						(LPBYTE*)&pwzMembersInfo,
 		    				PREFLEN, &entriesRead,
 						&totalEntries, &resumeHandle);
 	    if (lastError != 0 && lastError != ERROR_MORE_DATA)
 		break;
 	    for (index = 0; index < entriesRead; ++index)
-		if (lstrcmpiW(lpwUser, pwzMembersInfo[index].lgrmi1_name) == 0){
+		if (EqualSid(pSid, pwzMembersInfo[index].lgrmi0_sid) != 0){
 		    bReturn = TRUE;
 		    break;
 		}
@@ -1416,6 +1604,9 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 	} while(bReturn == FALSE &&
 		(lastError == ERROR_MORE_DATA ||  resumeHandle != 0));
 #else
+	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	AllocWideName((char*)SvPV(ST(2),na), lpwUser);
 	{
 	    PLOCALGROUP_USERS_INFO_0 pwzGroupUsers, lpGroupInfo;
 	    lastError = NetUserGetLocalGroups(lpwServer, lpwUser, 0,
@@ -1426,11 +1617,12 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 		// should check that entriesRead == totalEntries and redo if not
 		// but 'this should not happen' if PREFLEN is sufficiently large
 		lpGroupInfo = pwzGroupUsers;
-		for (index = 0; index < entriesRead; index++, lpGroupInfo++)
+		for (index = 0; index < entriesRead; index++, lpGroupInfo++) {
 		    if (lstrcmpiW(lpwGroup, lpGroupInfo->lgrui0_name) == 0) {
 			bReturn = TRUE;
 			break;
 		    }
+		}
 		NetApiBufferFree(pwzGroupUsers);
 	    }
 	}
@@ -1483,8 +1675,82 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembers)
 	    FreeWideName(lpwGroup);
 	}
 	else {
-	    croak("Usage: Win32::NetAdmin::LocalGroupGetMember(server, "
+	    croak("Usage: Win32::NetAdmin::LocalGroupGetMembers(server, "
 		  "groupName, \\@userArray)\nuserArray was not an array\n");
+	}
+    }
+    RETURNRESULT(lastError == 0);
+}
+
+/* Retrieve username with domain prepended */
+XS(XS_NT__NetAdmin_LocalGroupGetMembersWithDomain)
+{
+    dXSARGS;
+    LPWSTR lpwServer, lpwGroup;
+    char buffer[UNLEN+1];
+    char buffer1[UNLEN+1];
+    PLOCALGROUP_MEMBERS_INFO_2 pwzMembersInfo;
+    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    int index;
+    SV *sv, *nSv;
+
+    if (items != 3) {
+	croak("Usage: Win32::NetAdmin::LocalGroupGetMembersWithDomain(server, groupName, userRef)\n");
+    }
+    {
+	sv = ST(2);
+	if (SvROK(sv)) {
+	    sv = SvRV(sv);
+	}
+	if (SvTYPE(sv) == SVt_PVAV) {
+	    av_clear((AV*)sv);
+	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	    do {
+		lastError = NetLocalGroupGetMembers(lpwServer, lpwGroup, 2,
+						    (LPBYTE*)&pwzMembersInfo,
+						    PREFLEN, &entriesRead,
+						    &totalEntries,
+						    &resumeHandle);
+		if (lastError != 0 && lastError != ERROR_MORE_DATA)
+		    break;
+		for (index = 0; index < entriesRead; ++index) {
+		    WCTMB(pwzMembersInfo[index].lgrmi2_domainandname, buffer,
+			  sizeof(buffer));
+		    av_push((AV*)sv, newSVpv(buffer, 0));
+		}
+		NetApiBufferFree(pwzMembersInfo);
+	    } while (lastError == ERROR_MORE_DATA || resumeHandle != 0);
+	    FreeWideName(lpwServer);
+	    FreeWideName(lpwGroup);
+	}
+	else if( SvTYPE(sv) == SVt_PVHV) {
+	    hv_clear((HV*)sv);
+	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	    do {
+		lastError = NetLocalGroupGetMembers(lpwServer, lpwGroup, 2,
+						    (LPBYTE*)&pwzMembersInfo,
+						    PREFLEN, &entriesRead,
+						    &totalEntries,
+						    &resumeHandle);
+		if (lastError != 0 && lastError != ERROR_MORE_DATA)
+		    break;
+		for (index = 0; index < entriesRead; ++index) {
+		    WCTMB(pwzMembersInfo[index].lgrmi2_domainandname, buffer,
+			  sizeof(buffer));
+		    sprintf(buffer1, "%d", pwzMembersInfo[index].lgrmi2_sidusage );
+		    hv_store((HV*)sv, buffer, strlen(buffer),
+			     newSViv((DWORD)pwzMembersInfo[index].lgrmi2_sidusage),0);
+		}
+		NetApiBufferFree(pwzMembersInfo);
+	    } while (lastError == ERROR_MORE_DATA || resumeHandle != 0);
+	    FreeWideName(lpwServer);
+	    FreeWideName(lpwGroup);
+	}
+	else {
+	    croak("Usage: Win32::NetAdmin::LocalGroupGetMembersWithDomain(server, "
+		  "groupName, userRef)\nuserRef was not an array or hash reference\n");
 	}
     }
     RETURNRESULT(lastError == 0);
@@ -1566,6 +1832,179 @@ XS(XS_NT__NetAdmin_GetServers)
     RETURNRESULT(lastError == 0);
 }
 
+XS(XS_NT__NetAdmin_GetServerDisks)
+{
+    dXSARGS;
+    LPWSTR lpwServer;
+    char buffer[256];
+    LPWSTR disks;
+    LPWSTR p;
+    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    int index;
+    SV *sv, *nSv;
+
+    if (items != 2) {
+	croak("Usage: Win32::NetAdmin::GetServerDisks(server, \\@diskArray)\n");
+    }
+    {
+	sv = ST(1);
+	if (SvROK(sv)) {
+	    sv = SvRV(sv);
+	}
+	if (SvTYPE(sv) == SVt_PVAV) {
+	    av_clear((AV*)sv);
+	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    do {
+		lastError = NetServerDiskEnum(lpwServer, 0,
+						    (LPBYTE*)&disks,
+						    PREFLEN, &entriesRead,
+						    &totalEntries,
+						    &resumeHandle);
+		if (lastError != 0 && lastError != ERROR_MORE_DATA)
+		    break;
+		p = disks;
+		for (index = 0; index < entriesRead; ++index) {
+		    WCTMB(p, buffer, sizeof(buffer));
+		    av_push((AV*)sv, newSVpv(buffer, strlen(buffer)));
+		    p += 3;
+		}
+		NetApiBufferFree(disks);
+	    } while (lastError == ERROR_MORE_DATA || resumeHandle != 0);
+	    FreeWideName(lpwServer);
+	}
+	else {
+	    croak("Usage: Win32::NetAdmin::GetServerDisks(server, "
+		  "\\@diskArray)\ndiskArray was not an array\n");
+	}
+    }
+    RETURNRESULT(lastError == 0);
+}
+
+
+XS(XS_NT__NetAdmin_GetAliasFromRID)
+{
+    dXSARGS;
+    char buffer[512];
+    SID_NAME_USE snu;
+    PSID pSid;
+    WCHAR DomainName[DNLEN+2];
+    WCHAR Name[UNLEN+2];
+    DWORD chName = UNLEN+2;
+    BOOL bSuccess = FALSE;
+    DWORD rid = 0;
+    LPWSTR lpwServer = NULL;
+    DWORD cchDomainName = DNLEN+2;
+    SID_IDENTIFIER_AUTHORITY sia = SECURITY_NT_AUTHORITY;
+
+    if (items != 3) {
+	croak("Usage: Win32::NetAdmin::GetAliasFromRID(server, RID, returnedName)\n");
+    }
+    {
+	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	rid = (DWORD)SvIV(ST(1));
+	if(AllocateAndInitializeSid( &sia, 2, SECURITY_BUILTIN_DOMAIN_RID,
+				     rid, 0, 0, 0, 0, 0, 0, &pSid ))
+	{
+	    bSuccess = LookupAccountSidW( lpwServer, pSid,
+					  (LPWSTR)Name,
+					  &chName, DomainName, &cchDomainName,
+					  &snu );
+	    FreeSid(pSid);
+	}
+	if(bSuccess)
+	{
+	    WCTMB(Name, buffer, sizeof(buffer));
+	    SETPV(2,buffer);
+	}
+	FreeWideName(lpwServer);
+    }
+
+    RETURNRESULT(bSuccess);
+}
+
+XS(XS_NT__NetAdmin_GetUserGroupFromRID)
+{
+    dXSARGS;
+    char buffer[512];
+    PUSER_MODALS_INFO_2 umi2;
+    NET_API_STATUS nas;
+
+    UCHAR SubAuthorityCount;
+    PSID pSid;
+    SID_NAME_USE snu;
+
+    WCHAR DomainName[DNLEN+2];
+    DWORD cchDomainName = DNLEN+2;
+    WCHAR Name[UNLEN+2];
+    DWORD chName = UNLEN+2;
+    BOOL bSuccess = FALSE; /* assume failure */
+    DWORD rid = 0;
+    LPWSTR lpwServer = NULL;
+	
+
+    if (items != 3) {
+	croak("Usage: Win32::NetAdmin::GetUserGroupFromRID(server, RID, returnedName)\n");
+    }
+    {
+	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	rid = (DWORD)SvIV(ST(1));
+
+	nas = NetUserModalsGet(lpwServer, 2, (LPBYTE *)&umi2);
+
+	if(nas != NERR_Success) {
+	    SetLastError(nas);
+	    RETURNRESULT(FALSE);
+	}
+
+	SubAuthorityCount = *GetSidSubAuthorityCount(umi2->usrmod2_domain_id);
+
+	pSid =
+	    (PSID)malloc(GetSidLengthRequired((UCHAR)(SubAuthorityCount + 1)));
+
+	if (pSid != NULL) {
+	    if (InitializeSid(pSid,
+			     GetSidIdentifierAuthority(umi2->usrmod2_domain_id),
+			     (BYTE)(SubAuthorityCount+1)))
+	    {
+		DWORD SubAuthIndex = 0;
+				
+		/*
+		 * copy existing subauthorities from account domain Sid into
+		 * new Sid
+		 */
+		
+		for( ; SubAuthIndex < SubAuthorityCount ; SubAuthIndex++) {
+		    *GetSidSubAuthority(pSid, SubAuthIndex) =
+			*GetSidSubAuthority(umi2->usrmod2_domain_id, SubAuthIndex);
+		}
+				
+		/*
+		 * append Rid to new Sid
+		 */
+				
+		*GetSidSubAuthority(pSid, SubAuthorityCount) = rid;
+		
+		bSuccess = LookupAccountSidW(lpwServer,
+					     pSid,
+					     Name,
+					     &chName,
+					     DomainName,
+					     &cchDomainName,
+					     &snu);
+	    }
+	    free(pSid);
+	}
+	NetApiBufferFree(umi2);
+	if(bSuccess)
+	{
+	    WCTMB(Name, buffer, sizeof(buffer));
+	    SETPV(2,buffer);
+	}
+	FreeWideName(lpwServer);
+    }
+
+    RETURNRESULT(bSuccess);
+}
 
 XS(boot_Win32__NetAdmin)
 {
@@ -1596,16 +2035,18 @@ XS(boot_Win32__NetAdmin)
     newXS("Win32::NetAdmin::LocalGroupGetAttributes", XS_NT__NetAdmin_LocalGroupGetAttributes, file);
     newXS("Win32::NetAdmin::LocalGroupSetAttributes", XS_NT__NetAdmin_LocalGroupSetAttributes, file);
 
-#if (_MSC_VER >= 1000)  /* these are not available in VC 2.x */
     newXS("Win32::NetAdmin::LocalGroupAddUsers", XS_NT__NetAdmin_LocalGroupAddUsers, file);
     newXS("Win32::NetAdmin::LocalGroupDeleteUsers", XS_NT__NetAdmin_LocalGroupDeleteUsers, file);
     newXS("Win32::NetAdmin::UserChangePassword", XS_NT__NetAdmin_UserChangePassword, file);
-#endif
 
     newXS("Win32::NetAdmin::LocalGroupIsMember", XS_NT__NetAdmin_LocalGroupIsMember, file);
     newXS("Win32::NetAdmin::LocalGroupGetMembers", XS_NT__NetAdmin_LocalGroupGetMembers, file);
+    newXS("Win32::NetAdmin::LocalGroupGetMembersWithDomain", XS_NT__NetAdmin_LocalGroupGetMembersWithDomain, file);
     newXS("Win32::NetAdmin::GetServers", XS_NT__NetAdmin_GetServers, file);
+    newXS("Win32::NetAdmin::GetServerDisks", XS_NT__NetAdmin_GetServerDisks, file);
     newXS("Win32::NetAdmin::GetTransports", XS_NT__NetAdmin_GetTransports, file);
+    newXS("Win32::NetAdmin::GetAliasFromRID", XS_NT__NetAdmin_GetAliasFromRID, file);
+    newXS("Win32::NetAdmin::GetUserGroupFromRID", XS_NT__NetAdmin_GetUserGroupFromRID, file);
     ST(0) = &sv_yes;
     XSRETURN(1);
 }

@@ -5,7 +5,7 @@ package Win32::NetAdmin;
 #Written by Douglas_Lankshear@ActiveWare.com
 #
 
-$VERSION = '0.03';
+$VERSION = '0.05';
 
 require Exporter;
 require DynaLoader;
@@ -17,6 +17,20 @@ die "The Win32::NetAdmin module works only on Windows NT" if(!Win32::IsWinNT() )
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw(
+	DOMAIN_ALIAS_RID_ACCOUNT_OPS
+	DOMAIN_ALIAS_RID_ADMINS
+	DOMAIN_ALIAS_RID_BACKUP_OPS
+	DOMAIN_ALIAS_RID_GUESTS
+	DOMAIN_ALIAS_RID_POWER_USERS
+	DOMAIN_ALIAS_RID_PRINT_OPS
+	DOMAIN_ALIAS_RID_REPLICATOR
+	DOMAIN_ALIAS_RID_SYSTEM_OPS
+	DOMAIN_ALIAS_RID_USERS
+	DOMAIN_GROUP_RID_ADMINS
+	DOMAIN_GROUP_RID_GUESTS
+	DOMAIN_GROUP_RID_USERS
+	DOMAIN_USER_RID_ADMIN
+	DOMAIN_USER_RID_GUEST
 	FILTER_TEMP_DUPLICATE_ACCOUNT
 	FILTER_NORMAL_ACCOUNT
 	FILTER_INTERDOMAIN_TRUST_ACCOUNT
@@ -32,7 +46,9 @@ die "The Win32::NetAdmin module works only on Windows NT" if(!Win32::IsWinNT() )
 	SV_TYPE_NOVELL
 	SV_TYPE_DOMAIN_MEMBER
 	SV_TYPE_PRINT
+	SV_TYPE_PRINTQ_SERVER
 	SV_TYPE_DIALIN
+	SV_TYPE_DIALIN_SERVER
 	SV_TYPE_XENIX_SERVER
 	SV_TYPE_NT
 	SV_TYPE_WFW
@@ -41,6 +57,15 @@ die "The Win32::NetAdmin module works only on Windows NT" if(!Win32::IsWinNT() )
 	SV_TYPE_MASTER_BROWSER
 	SV_TYPE_DOMAIN_MASTER
 	SV_TYPE_DOMAIN_ENUM
+	SV_TYPE_SERVER_UNIX
+	SV_TYPE_SERVER_MFPN
+	SV_TYPE_SERVER_NT
+	SV_TYPE_SERVER_OSF
+	SV_TYPE_SERVER_VMS
+	SV_TYPE_WINDOWS
+	SV_TYPE_DFS
+	SV_TYPE_ALTERNATE_XPORT
+	SV_TYPE_LOCAL_LIST_ONLY
 	SV_TYPE_ALL
 	UF_TEMP_DUPLICATE_ACCOUNT
 	UF_NORMAL_ACCOUNT
@@ -65,6 +90,43 @@ die "The Win32::NetAdmin module works only on Windows NT" if(!Win32::IsWinNT() )
 	USER_PRIV_USER
 	USER_PRIV_ADMIN
 );
+
+@EXPORT_OK = qw(
+    GetError
+    GetDomainController
+    GetAnyDomainController
+    UserCreate
+    UserDelete
+    UserGetAttributes
+    UserSetAttributes
+    UserChangePassword
+    UsersExist
+    GetUsers
+    GroupCreate
+    GroupDelete
+    GroupGetAttributes
+    GroupSetAttributes
+    GroupAddUsers
+    GroupDeleteUsers
+    GroupIsMember
+    GroupGetMembers
+    LocalGroupCreate
+    LocalGroupDelete
+    LocalGroupGetAttributes
+    LocalGroupSetAttributes
+    LocalGroupIsMember
+    LocalGroupGetMembers
+    LocalGroupGetMembersWithDomain
+    LocalGroupAddUsers
+    LocalGroupDeleteUsers
+    GetServers
+    GetTransports
+    LoggedOnUsers
+    GetAliasFromRID
+    GetUserGroupFromRID
+    GetServerDisks
+);
+$EXPORT_TAGS{ALL}= \@EXPORT_OK;
 
 =head1 NAME
 
@@ -186,6 +248,23 @@ Returns TRUE if user is a member of groupName.
 
 Fills userArrayRef with the members of groupName.
 
+=item LocalGroupGetMembersWithDomain(server, groupName, userRef)
+
+This function is similar LocalGroupGetMembers but accepts an array or
+a hash reference. Unlike LocalGroupGetMembers it returns each user name
+as C<DOMAIN\USERNAME>. If a hash reference is given, the function
+returns to each user or group name the type (group, user, alias etc.).
+The possible types are as follows:
+
+  $SidTypeUser = 1;
+  $SidTypeGroup = 2;
+  $SidTypeDomain = 3;
+  $SidTypeAlias = 4;
+  $SidTypeWellKnownGroup = 5;
+  $SidTypeDeletedAccount = 6;
+  $SidTypeInvalid = 7;
+  $SidTypeUnknown = 8;
+
 =item LocalGroupAddUsers(server, groupName, users)
 
 Adds a user to a group.
@@ -212,6 +291,36 @@ Gets an array or hash with the users logged on at the specified computer. If
 userRef is a hash reference, the value is a semikolon separated string of
 username, logon domain and logon server.
 
+=item GetAliasFromRID(server, RID, returnedName)
+
+=item GetUserGroupFromRID(server, RID, returnedName)
+
+Retrieves the name of an alias (i.e local group) or a user group for a RID
+from the specified server. These functions can be used for example to get the
+account name for the administrator account if it is renamed or localized.
+
+Possible values for C<RID>:
+
+  DOMAIN_ALIAS_RID_ACCOUNT_OPS
+  DOMAIN_ALIAS_RID_ADMINS
+  DOMAIN_ALIAS_RID_BACKUP_OPS
+  DOMAIN_ALIAS_RID_GUESTS
+  DOMAIN_ALIAS_RID_POWER_USERS
+  DOMAIN_ALIAS_RID_PRINT_OPS
+  DOMAIN_ALIAS_RID_REPLICATOR
+  DOMAIN_ALIAS_RID_SYSTEM_OPS
+  DOMAIN_ALIAS_RID_USERS
+  DOMAIN_GROUP_RID_ADMINS
+  DOMAIN_GROUP_RID_GUESTS
+  DOMAIN_GROUP_RID_USERS
+  DOMAIN_USER_RID_ADMIN
+  DOMAIN_USER_RID_GUEST
+
+=item GetServerDisks(server, arrayRef)
+
+Returns an array with the disk drives of the specified server. The array
+contains two-character strings (drive letter followed by a colon).
+
 =back
 
 =cut
@@ -235,6 +344,15 @@ sub AUTOLOAD {
     eval "sub $AUTOLOAD { $val }";
     goto &$AUTOLOAD;
 }
+
+$SidTypeUser = 1;
+$SidTypeGroup = 2;
+$SidTypeDomain = 3;
+$SidTypeAlias = 4;
+$SidTypeWellKnownGroup = 5;
+$SidTypeDeletedAccount = 6;
+$SidTypeInvalid = 7;
+$SidTypeUnknown = 8;
 
 bootstrap Win32::NetAdmin;
 

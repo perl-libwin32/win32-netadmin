@@ -1,5 +1,18 @@
 Revision history for Perl extension Win32::NetAdmin.
 
+0.05  Sun May 10 22:39:01 1998
+	- removed broken #ifdefs that disabled UserChangePassword() and
+	  other functions
+	- fix broken constants and add new ones (courtesy Dave Roth
+	  <rothd@roth.net>)
+	- export :ALL functions (courtesy Tye McQueen <tye@metronet.com>)
+	- New functions GetAliasFromRID(), GetUserGroupFromRID(), and
+	  GetServerDisks(). LocalGroupGetMembersWithDomain() fixes
+	  (courtesy Jutta M. Klebe <jmk@exc.bybyte.de>)
+
+0.04  (unreleased)
+	- added LocalGroupGetMembersWithDomain() via
+	  David Gardiner <david.gardiner@unisa.edu.au>
 
 0.03  Fri Feb  6 21:02:31 1998
 	- fixes and enhancements courtesy Jutta Klebe <jmk@exc.bybyte.de>
