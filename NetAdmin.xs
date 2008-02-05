@@ -649,8 +649,9 @@ XS(XS_NT__NetAdmin_GetDomainController)
 	croak("Usage: Win32::NetAdmin::GetDomainController(server, domain, returnedName)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwDomain);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwDomain);
 	lastError = NetGetDCName(lpwServer, lpwDomain, (LPBYTE *)&lpwPrimaryDC);
 	if (lastError == 0) {
 	    WCTMB(lpwPrimaryDC, buffer, sizeof(buffer));
@@ -673,8 +674,9 @@ XS(XS_NT__NetAdmin_GetAnyDomainController)
 	croak("Usage: Win32::NetAdmin::GetAnyDomainController(server, domain, returnedName)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwDomain);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwDomain);
 	lastError = NetGetAnyDCName(lpwServer, lpwDomain, (LPBYTE *)&lpwAnyDC);
 	if (lastError == 0) {
 	    WCTMB(lpwAnyDC, buffer, sizeof(buffer));
@@ -691,11 +693,12 @@ XS(XS_NT__NetAdmin_constant)
 {
     dXSARGS;
 
-    if (items != 2) {
-	croak("Usage: Win32::NetAdmin::constant(name, arg)\n");
+    if (items < 1) {
+	croak("Usage: Win32::NetAdmin::constant(name)\n");
     }
     {
-	char* name = (char*)SvPV(ST(0),na);
+	STRLEN n_a;
+	char* name = (char*)SvPV(ST(0),n_a);
 	ST(0) = sv_newmortal();
 	sv_setiv(ST(0), constant(name));
     }
@@ -713,15 +716,16 @@ XS(XS_NT__NetAdmin_UserCreate)
 	      "passwordAge, privilege, homeDir, comment, flags, scriptPath)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), uiUser.usri1_name);
-	AllocWideName((char*)SvPV(ST(2),na), uiUser.usri1_password);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), uiUser.usri1_name);
+	AllocWideName((char*)SvPV(ST(2),n_a), uiUser.usri1_password);
 	uiUser.usri1_password_age		= SvIV(ST(3));
 	uiUser.usri1_priv			= SvIV(ST(4));
-	AllocWideName((char*)SvPV(ST(5),na), uiUser.usri1_home_dir);
-	AllocWideName((char*)SvPV(ST(6),na), uiUser.usri1_comment);
+	AllocWideName((char*)SvPV(ST(5),n_a), uiUser.usri1_home_dir);
+	AllocWideName((char*)SvPV(ST(6),n_a), uiUser.usri1_comment);
 	uiUser.usri1_flags			= SvIV(ST(7));
-	AllocWideName((char*)SvPV(ST(8),na), uiUser.usri1_script_path);
+	AllocWideName((char*)SvPV(ST(8),n_a), uiUser.usri1_script_path);
 	lastError = NetUserAdd(lpwServer, 1, (LPBYTE)&uiUser, NULL);
 	FreeWideName(lpwServer);
 	FreeWideName(uiUser.usri1_name);
@@ -742,8 +746,9 @@ XS(XS_NT__NetAdmin_UserDelete)
 	croak("Usage: Win32::NetAdmin::UserDelete(server, user)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwUser);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwUser);
 	lastError = NetUserDel(lpwServer, lpwUser);
 	FreeWideName(lpwServer);
 	FreeWideName(lpwUser);
@@ -765,8 +770,9 @@ XS(XS_NT__NetAdmin_UserGetAttributes)
 	      "scriptPath)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwUser);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwUser);
 	lastError = NetUserGetInfo(lpwServer, lpwUser, 1, (LPBYTE*)&puiUser);
 	if (lastError == 0) {
 	    WCTMB(puiUser->usri1_password, buffer, sizeof(buffer));
@@ -800,15 +806,16 @@ XS(XS_NT__NetAdmin_UserSetAttributes)
 	      "scriptPath)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), uiUser.usri1_name);
-	AllocWideName((char*)SvPV(ST(2),na), uiUser.usri1_password);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), uiUser.usri1_name);
+	AllocWideName((char*)SvPV(ST(2),n_a), uiUser.usri1_password);
 	uiUser.usri1_password_age		= SvIV(ST(3));
 	uiUser.usri1_priv			= SvIV(ST(4));
-	AllocWideName((char*)SvPV(ST(5),na), uiUser.usri1_home_dir);
-	AllocWideName((char*)SvPV(ST(6),na), uiUser.usri1_comment);
+	AllocWideName((char*)SvPV(ST(5),n_a), uiUser.usri1_home_dir);
+	AllocWideName((char*)SvPV(ST(6),n_a), uiUser.usri1_comment);
 	uiUser.usri1_flags			= SvIV(ST(7));
-	AllocWideName((char*)SvPV(ST(8),na), uiUser.usri1_script_path);
+	AllocWideName((char*)SvPV(ST(8),n_a), uiUser.usri1_script_path);
 	lastError = NetUserSetInfo(lpwServer, uiUser.usri1_name, 1, (LPBYTE)&uiUser, NULL);
 	FreeWideName(lpwServer);
 	FreeWideName(uiUser.usri1_name);
@@ -833,10 +840,11 @@ XS(XS_NT__NetAdmin_UserChangePassword)
 	      "username, oldpassword, newpassword)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwDomain);
-	AllocWideName((char*)SvPV(ST(1),na), lpwUserName);
-	AllocWideName((char*)SvPV(ST(2),na), lpwOldPassword);
-	AllocWideName((char*)SvPV(ST(3),na), lpwNewPassword);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwDomain);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwUserName);
+	AllocWideName((char*)SvPV(ST(2),n_a), lpwOldPassword);
+	AllocWideName((char*)SvPV(ST(3),n_a), lpwNewPassword);
 	lastError = NetUserChangePassword(lpwDomain, lpwUserName, lpwOldPassword,lpwNewPassword);
 	FreeWideName(lpwDomain);
 	FreeWideName(lpwUserName);
@@ -858,8 +866,9 @@ XS(XS_NT__NetAdmin_UsersExist)
 	croak("Usage: Win32::NetAdmin::UsersExist(server, userName)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwUser);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwUser);
 	lastError = NetUserGetInfo(lpwServer, lpwUser, 0, (LPBYTE*)&puiUser);
 	if (lastError == 0) {
 	    bReturn = TRUE;
@@ -888,6 +897,7 @@ XS(XS_NT__NetAdmin_GetUsers)
 	croak("Usage: Win32::NetAdmin::GetUsers(server, filter, userRef)\n");
     }
     {	
+	STRLEN n_a;
 	filter = SvIV(ST(1));
 	sv = ST(2);
 	if (SvROK(sv)) {
@@ -895,7 +905,7 @@ XS(XS_NT__NetAdmin_GetUsers)
 	}
 	if (SvTYPE(sv) == SVt_PVAV) {
 	    av_clear((AV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
 	    do {
 		lastError = NetUserEnum(lpwServer, 0, filter,
 					(LPBYTE*)&pwzUsers, PREFLEN,
@@ -913,7 +923,7 @@ XS(XS_NT__NetAdmin_GetUsers)
 	}
 	else if( SvTYPE(sv) == SVt_PVHV) {
 	    hv_clear((HV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
 	    do {
 		lastError = NetUserEnum(lpwServer,10, filter,
 					(LPBYTE*)&pwzUsers10, PREFLEN,
@@ -956,13 +966,14 @@ XS(XS_NT__NetAdmin_GetTransports)
 	croak("Usage: Win32::NetAdmin::GetTransport(server, transportRef)\n");
     }
     {
+	STRLEN n_a;
 	sv = ST(1);
 	if (SvROK(sv)) {
 	    sv = SvRV(sv);
 	}
 	if (SvTYPE(sv) == SVt_PVAV) {
 	    av_clear((AV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
 	    do {
 		lastError = NetWkstaTransportEnum(lpwServer, 0,
 					  (LPBYTE*) &pws,
@@ -981,7 +992,7 @@ XS(XS_NT__NetAdmin_GetTransports)
 	}
 	else if( SvTYPE(sv) == SVt_PVHV) {
 	    hv_clear((HV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
 	    do {
 		lastError = NetWkstaTransportEnum(lpwServer, 0,
 						  (LPBYTE*) &pws,
@@ -1046,13 +1057,14 @@ XS(XS_NT__NetAdmin_LoggedOnUsers)
 	croak("Usage: Win32::NetAdmin::LoggedOnUsers(server, $userRef)\n");
     }
     {	
+	STRLEN n_a;
 	sv = ST(1);
 	if (SvROK(sv)) {
 	    sv = SvRV(sv);
 	}
 	if (SvTYPE(sv) == SVt_PVAV) {
 	    av_clear((AV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
 	    do {
 		lastError = NetWkstaUserEnum(lpwServer, 0,
 					(LPBYTE*)&pwzUser0, PREFLEN,
@@ -1070,7 +1082,7 @@ XS(XS_NT__NetAdmin_LoggedOnUsers)
 	}
 	else if( SvTYPE(sv) == SVt_PVHV) {
 	    hv_clear((HV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
 	    do {
 		lastError = NetWkstaUserEnum(lpwServer,1,
 					     (LPBYTE*)&pwzUser1, PREFLEN,
@@ -1112,9 +1124,10 @@ XS(XS_NT__NetAdmin_GroupCreate)
 	croak("Usage: Win32::NetAdmin::GroupCreate(server, group, comment)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), groupInfo.grpi1_name);
-	AllocWideName((char*)SvPV(ST(2),na), groupInfo.grpi1_comment);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), groupInfo.grpi1_name);
+	AllocWideName((char*)SvPV(ST(2),n_a), groupInfo.grpi1_comment);
 	lastError = NetGroupAdd(lpwServer, 1, (LPBYTE)&groupInfo, NULL);
 	FreeWideName(lpwServer);
 	FreeWideName(groupInfo.grpi1_name);
@@ -1132,8 +1145,9 @@ XS(XS_NT__NetAdmin_GroupDelete)
 	croak("Usage: Win32::NetAdmin::GroupDelete(server, group)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	lastError = NetGroupDel(lpwServer, lpwGroup);
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
@@ -1152,8 +1166,9 @@ XS(XS_NT__NetAdmin_GroupGetAttributes)
 	croak("Usage: Win32::NetAdmin::GroupGetAttributes(server, groupName, comment)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	lastError = NetGroupGetInfo(lpwServer, lpwGroup, 2,
 				    (LPBYTE*)&pgroupInfo);
 	if (lastError == 0) {
@@ -1177,9 +1192,10 @@ XS(XS_NT__NetAdmin_GroupSetAttributes)
 	croak("Usage: Win32::NetAdmin::GroupSetAttributes(server, groupName, comment)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), groupInfo.grpi2_name);
-	AllocWideName((char*)SvPV(ST(2),na), groupInfo.grpi2_comment);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), groupInfo.grpi2_name);
+	AllocWideName((char*)SvPV(ST(2),n_a), groupInfo.grpi2_comment);
 	groupInfo.grpi2_group_id		= 0;
 	groupInfo.grpi2_attributes		= 0;
 	lastError = NetGroupSetInfo(lpwServer, groupInfo.grpi2_name,
@@ -1203,8 +1219,9 @@ XS(XS_NT__NetAdmin_GroupAddUsers)
 	croak("Usage: Win32::NetAdmin::GroupAddUsers(server, groupName, users)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	sv = ST(2);
 	if (SvROK(sv)) {
 	    sv = SvRV(sv);
@@ -1216,7 +1233,7 @@ XS(XS_NT__NetAdmin_GroupAddUsers)
 	    for (index = 0; index <= count; ++index) {
 		psv = av_fetch((AV*)sv, index, 0);
 		if (psv != NULL) {
-		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,na),
+		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,n_a),
 					-1, wzUser, sizeof(wzUser));
 		    lastError = NetGroupAddUser(lpwServer, lpwGroup, wzUser);
 		    if (lastError != 0)
@@ -1225,7 +1242,7 @@ XS(XS_NT__NetAdmin_GroupAddUsers)
 	    }
 	    break;
 	default:
-	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,na),
+	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,n_a),
 				-1, wzUser, sizeof(wzUser));
 	    lastError = NetGroupAddUser(lpwServer, lpwGroup, wzUser);
 	    break;
@@ -1248,8 +1265,9 @@ XS(XS_NT__NetAdmin_GroupDeleteUsers)
 	croak("Usage: Win32::NetAdmin::GroupDeleteUsers(server, groupName, users)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	sv = ST(2);
 	if (SvROK(sv)) {
 	    sv = SvRV(sv);
@@ -1260,7 +1278,7 @@ XS(XS_NT__NetAdmin_GroupDeleteUsers)
 	    for (index = 0; index <= count; ++index) {
 		psv = av_fetch((AV*)sv, index, 0);
 		if (psv != NULL) {
-		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,na),
+		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,n_a),
 					-1, wzUser, sizeof(wzUser));
 		    lastError = NetGroupDelUser(lpwServer, lpwGroup, wzUser);
 		    if (lastError != 0)
@@ -1269,7 +1287,7 @@ XS(XS_NT__NetAdmin_GroupDeleteUsers)
 	    }
 	    break;
 	default:
-	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,na),
+	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,n_a),
 				-1, wzUser, sizeof(wzUser));
 	    lastError = NetGroupDelUser(lpwServer, lpwGroup, wzUser);
 	    break;
@@ -1293,9 +1311,10 @@ XS(XS_NT__NetAdmin_GroupIsMember)
 	croak("Usage: Win32::NetAdmin::GroupIsMember(server, groupName, user)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
-	AllocWideName((char*)SvPV(ST(2),na), lpwUser);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
+	AllocWideName((char*)SvPV(ST(2),n_a), lpwUser);
 #if 0
 	do {
 	    lastError = NetGroupGetUsers(lpwServer, lpwGroup, 0,
@@ -1350,14 +1369,15 @@ XS(XS_NT__NetAdmin_GroupGetMembers)
 	croak("Usage: Win32::NetAdmin::GroupGetMembers(server, groupName, \\@userArray)\n");
     }
     {
+	STRLEN n_a;
 	sv = ST(2);
 	if (SvROK(sv)) {
 	    sv = SvRV(sv);
 	}
 	if (SvTYPE(sv) == SVt_PVAV) {
 	    av_clear((AV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	    AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	    AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	    do {
 		lastError = NetGroupGetUsers(lpwServer, lpwGroup, 0,
 					     (LPBYTE*)&pwzGroupUsers, PREFLEN,
@@ -1393,9 +1413,10 @@ XS(XS_NT__NetAdmin_LocalGroupCreate)
 	croak("Usage: Win32::NetAdmin::LocalGroupCreate(server, group, comment)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), groupInfo.lgrpi1_name);
-	AllocWideName((char*)SvPV(ST(2),na), groupInfo.lgrpi1_comment);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), groupInfo.lgrpi1_name);
+	AllocWideName((char*)SvPV(ST(2),n_a), groupInfo.lgrpi1_comment);
 	lastError = NetLocalGroupAdd(lpwServer, 1, (LPBYTE)&groupInfo, NULL);
 	FreeWideName(lpwServer);
 	FreeWideName(groupInfo.lgrpi1_name);
@@ -1413,8 +1434,9 @@ XS(XS_NT__NetAdmin_LocalGroupDelete)
 	croak("Usage: Win32::NetAdmin::LocalGroupDelete(server, group)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	lastError = NetLocalGroupDel(lpwServer, lpwGroup);
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
@@ -1433,8 +1455,9 @@ XS(XS_NT__NetAdmin_LocalGroupGetAttributes)
 	croak("Usage: Win32::NetAdmin::LocalGroupGetAttributes(server, groupName, comment)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	lastError = NetLocalGroupGetInfo(lpwServer, lpwGroup, 1, (LPBYTE*)&pgroupInfo);
 	if (lastError == 0) {
 	    WCTMB(pgroupInfo->lgrpi1_comment, buffer, sizeof(buffer));
@@ -1457,9 +1480,10 @@ XS(XS_NT__NetAdmin_LocalGroupSetAttributes)
 	croak("Usage: Win32::NetAdmin::LocalGroupSetAttributes(server, groupName, comment)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), groupInfo.lgrpi1_name);
-	AllocWideName((char*)SvPV(ST(2),na), groupInfo.lgrpi1_comment);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), groupInfo.lgrpi1_name);
+	AllocWideName((char*)SvPV(ST(2),n_a), groupInfo.lgrpi1_comment);
 	lastError = NetLocalGroupSetInfo(lpwServer, groupInfo.lgrpi1_name, 1, (LPBYTE)&groupInfo, NULL);
 	FreeWideName(lpwServer);
 	FreeWideName(groupInfo.lgrpi1_name);
@@ -1481,9 +1505,10 @@ XS(XS_NT__NetAdmin_LocalGroupAddUsers)
 	croak("Usage: Win32::NetAdmin::LocalGroupAddUsers(server, groupName, users)\n");
     }
     {
+	STRLEN n_a;
 	lgmi3MembersInfo.lgrmi3_domainandname = wzUser;
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	sv = ST(2);
 	if (SvROK(sv)) {
 	    sv = SvRV(sv);
@@ -1494,7 +1519,7 @@ XS(XS_NT__NetAdmin_LocalGroupAddUsers)
 	    for (index = 0; index <= count; ++index) {
 		psv = av_fetch((AV*)sv, index, 0);
 		if (psv != NULL) {
-		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,na),
+		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,n_a),
 					-1, wzUser, sizeof(wzUser));
 		    lastError = NetLocalGroupAddMembers(lpwServer, lpwGroup, 3,
 							(LPBYTE)&lgmi3MembersInfo, 1);
@@ -1504,7 +1529,7 @@ XS(XS_NT__NetAdmin_LocalGroupAddUsers)
 	    }
 	    break;
 	default:
-	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,na), -1,
+	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,n_a), -1,
 				wzUser, sizeof(wzUser));
 	    lastError = NetLocalGroupAddMembers(lpwServer, lpwGroup, 3,
 						(LPBYTE)&lgmi3MembersInfo, 1);
@@ -1529,9 +1554,10 @@ XS(XS_NT__NetAdmin_LocalGroupDeleteUsers)
 	croak("Usage: Win32::NetAdmin::LocalGroupDeleteUsers(server, groupName, users)\n");
     }
     {
+	STRLEN n_a;
 	lgmi3MembersInfo.lgrmi3_domainandname = wzUser;
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	sv = ST(2);
 	if (SvROK(sv)) {
 	    sv = SvRV(sv);
@@ -1542,7 +1568,7 @@ XS(XS_NT__NetAdmin_LocalGroupDeleteUsers)
 	    for (index = 0; index <= count; ++index) {
 		psv = av_fetch((AV*)sv, index, 0);
 		if (psv != NULL) {
-		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,na),
+		    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(*psv,n_a),
 					-1, wzUser, sizeof(wzUser));
 		    lastError = NetLocalGroupDelMembers(lpwServer, lpwGroup, 3,
 							(LPBYTE)&lgmi3MembersInfo, 1);
@@ -1552,7 +1578,7 @@ XS(XS_NT__NetAdmin_LocalGroupDeleteUsers)
 	    }
 	    break;
 	default:
-	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,na), -1,
+	    MultiByteToWideChar(CP_ACP, NULL, (char*)SvPV(sv,n_a), -1,
 				wzUser, sizeof(wzUser));
 	    lastError = NetLocalGroupDelMembers(lpwServer, lpwGroup, 3,
 						(LPBYTE)&lgmi3MembersInfo, 1);
@@ -1576,16 +1602,17 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 	croak("Usage: Win32::NetAdmin::LocalGroupIsMember(server, groupName, user)\n");
     }
     {
+	STRLEN n_a;
 #if 1
 	PSID pSid;
-	lastError = GetAccountSID((LPCTSTR)SvPV(ST(0),na),
-				  (LPCTSTR)SvPV(ST(2),na),
+	lastError = GetAccountSID((LPCTSTR)SvPV(ST(0),n_a),
+				  (LPCTSTR)SvPV(ST(2),n_a),
 				  &pSid);
 	if(ERROR_SUCCESS != lastError)
 	    XSRETURN_NO;
 		
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	do {
 	    PLOCALGROUP_MEMBERS_INFO_0 pwzMembersInfo;
 	    lastError = NetLocalGroupGetMembers(lpwServer, lpwGroup, 0,
@@ -1606,9 +1633,9 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
 #else
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
-	AllocWideName((char*)SvPV(ST(2),na), lpwUser);
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
+	AllocWideName((char*)SvPV(ST(2),n_a), lpwUser);
 	{
 	    PLOCALGROUP_USERS_INFO_0 pwzGroupUsers, lpGroupInfo;
 	    lastError = NetUserGetLocalGroups(lpwServer, lpwUser, 0,
@@ -1650,14 +1677,15 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembers)
 	croak("Usage: Win32::NetAdmin::LocalGroupGetMembers(server, groupName, \\@userArray)\n");
     }
     {
+	STRLEN n_a;
 	sv = ST(2);
 	if (SvROK(sv)) {
 	    sv = SvRV(sv);
 	}
 	if (SvTYPE(sv) == SVt_PVAV) {
 	    av_clear((AV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	    AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	    AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	    do {
 		lastError = NetLocalGroupGetMembers(lpwServer, lpwGroup, 1,
 						    (LPBYTE*)&pwzMembersInfo,
@@ -1700,14 +1728,15 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembersWithDomain)
 	croak("Usage: Win32::NetAdmin::LocalGroupGetMembersWithDomain(server, groupName, userRef)\n");
     }
     {
+	STRLEN n_a;
 	sv = ST(2);
 	if (SvROK(sv)) {
 	    sv = SvRV(sv);
 	}
 	if (SvTYPE(sv) == SVt_PVAV) {
 	    av_clear((AV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	    AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	    AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	    do {
 		lastError = NetLocalGroupGetMembers(lpwServer, lpwGroup, 2,
 						    (LPBYTE*)&pwzMembersInfo,
@@ -1728,8 +1757,8 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembersWithDomain)
 	}
 	else if( SvTYPE(sv) == SVt_PVHV) {
 	    hv_clear((HV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	    AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	    AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	    do {
 		lastError = NetLocalGroupGetMembers(lpwServer, lpwGroup, 2,
 						    (LPBYTE*)&pwzMembersInfo,
@@ -1775,14 +1804,15 @@ XS(XS_NT__NetAdmin_GetServers)
 	      "$serverRef)\n");
     }
     {
+	STRLEN n_a;
 	sv = ST(3);
 	if (SvROK(sv)) {
 	    sv = SvRV(sv);
 	}
 	if (SvTYPE(sv) == SVt_PVAV) {
 	    av_clear((AV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	    AllocWideName((char*)SvPV(ST(1),na), lpwDomain);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	    AllocWideName((char*)SvPV(ST(1),n_a), lpwDomain);
 	    do {
 		lastError = NetServerEnum(lpwServer, 100,
 					  (LPBYTE*) &pwzServerInfo,
@@ -1803,8 +1833,8 @@ XS(XS_NT__NetAdmin_GetServers)
 	}
 	else if( SvTYPE(sv) == SVt_PVHV) {
 	    hv_clear((HV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
-	    AllocWideName((char*)SvPV(ST(1),na), lpwDomain);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
+	    AllocWideName((char*)SvPV(ST(1),n_a), lpwDomain);
 	    do {
 		lastError = NetServerEnum(lpwServer, 101,
 					  (LPBYTE*) &pwzServerInfo101,
@@ -1849,13 +1879,14 @@ XS(XS_NT__NetAdmin_GetServerDisks)
 	croak("Usage: Win32::NetAdmin::GetServerDisks(server, \\@diskArray)\n");
     }
     {
+	STRLEN n_a;
 	sv = ST(1);
 	if (SvROK(sv)) {
 	    sv = SvRV(sv);
 	}
 	if (SvTYPE(sv) == SVt_PVAV) {
 	    av_clear((AV*)sv);
-	    AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	    AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
 	    do {
 		lastError = NetServerDiskEnum(lpwServer, 0,
 						    (LPBYTE*)&disks,
@@ -1902,7 +1933,8 @@ XS(XS_NT__NetAdmin_GetAliasFromRID)
 	croak("Usage: Win32::NetAdmin::GetAliasFromRID(server, RID, returnedName)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
 	rid = (DWORD)SvIV(ST(1));
 	if(AllocateAndInitializeSid( &sia, 2, SECURITY_BUILTIN_DOMAIN_RID,
 				     rid, 0, 0, 0, 0, 0, 0, &pSid ))
@@ -1948,7 +1980,8 @@ XS(XS_NT__NetAdmin_GetUserGroupFromRID)
 	croak("Usage: Win32::NetAdmin::GetUserGroupFromRID(server, RID, returnedName)\n");
     }
     {
-	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
+	STRLEN n_a;
+	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
 	rid = (DWORD)SvIV(ST(1));
 
 	nas = NetUserModalsGet(lpwServer, 2, (LPBYTE *)&umi2);
@@ -2049,7 +2082,6 @@ XS(boot_Win32__NetAdmin)
     newXS("Win32::NetAdmin::GetTransports", XS_NT__NetAdmin_GetTransports, file);
     newXS("Win32::NetAdmin::GetAliasFromRID", XS_NT__NetAdmin_GetAliasFromRID, file);
     newXS("Win32::NetAdmin::GetUserGroupFromRID", XS_NT__NetAdmin_GetUserGroupFromRID, file);
-    ST(0) = &sv_yes;
-    XSRETURN(1);
+    XSRETURN_YES;
 }
 

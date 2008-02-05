@@ -5,7 +5,7 @@ package Win32::NetAdmin;
 #Written by Douglas_Lankshear@ActiveWare.com
 #
 
-$VERSION = '0.06';
+$VERSION = '0.062';
 
 require Exporter;
 require DynaLoader;
@@ -323,6 +323,51 @@ contains two-character strings (drive letter followed by a colon).
 
 =back
 
+=head1 EXAMPLE
+
+    # Simple script using Win32::NetAdmin to set the login script for
+    # all members of the NT group "Domain Users".  Only works if you
+    # run it on the PDC. (From Robert Spier <rspier@seas.upenn.edu>)
+    #
+    # FILTER_TEMP_DUPLICATE_ACCOUNTS
+    #	Enumerates local user account data on a domain controller.
+    #
+    # FILTER_NORMAL_ACCOUNT
+    #	Enumerates global user account data on a computer.
+    #
+    # FILTER_INTERDOMAIN_TRUST_ACCOUNT
+    #	Enumerates domain trust account data on a domain controller.
+    #
+    # FILTER_WORKSTATION_TRUST_ACCOUNT
+    #	Enumerates workstation or member server account data on a domain
+    #	controller.
+    #
+    # FILTER_SERVER_TRUST_ACCOUNT
+    #	Enumerates domain controller account data on a domain controller.
+
+
+    use Win32::NetAdmin qw(GetUsers GroupIsMember
+			   UserGetAttributes UserSetAttributes);
+
+    my %hash;
+    GetUsers("", FILTER_NORMAL_ACCOUNT , \%hash)
+	or die "GetUsers() failed: $^E";
+
+    foreach (keys %hash) {
+	my ($password, $passwordAge, $privilege,
+	    $homeDir, $comment, $flags, $scriptPath);
+	if (GroupIsMember("", "Domain Users", $_)) {
+	    print "Updating $_ ($hash{$_})\n";
+	    UserGetAttributes("", $_, $password, $passwordAge, $privilege,
+			      $homeDir, $comment, $flags, $scriptPath)
+		or die "UserGetAttributes() failed: $^E";
+	    $scriptPath = "dnx_login.bat"; # this is the new login script
+	    UserSetAttributes("", $_, $password, $passwordAge, $privilege,
+			      $homeDir, $comment, $flags, $scriptPath)
+		or die "UserSetAttributes() failed: $^E";
+	}
+    }
+
 =cut
 
 sub AUTOLOAD {
@@ -330,7 +375,7 @@ sub AUTOLOAD {
     ($constname = $AUTOLOAD) =~ s/.*:://;
     #reset $! to zero to reset any current errors.
     $!=0;
-    my $val = constant($constname, @_ ? $_[0] : 0);
+    my $val = constant($constname);
     if ($! != 0) {
 	if ($! =~ /Invalid/) {
 	    $AutoLoader::AUTOLOAD = $AUTOLOAD;
