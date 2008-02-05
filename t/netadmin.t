@@ -34,7 +34,7 @@ print "ok 1\n";
 Win32::NetAdmin::UserGetAttributes($serverName, $userName, my $getpassword, $GetpasswordAge, $Getprivilege, $GethomeDir, $Getcomment, $Getflags, $Getscriptpath) || print "not ";
 print "ok 2\n";
 
-($passwordAge == $GetpasswordAge) || print "not ";
+($passwordAge <= $GetpasswordAge && $passwordAge+5 >= $GetpasswordAge) || print "not ";
 print "ok 3\n";
 
 if($serverName eq '')
