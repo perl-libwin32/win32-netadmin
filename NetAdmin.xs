@@ -1603,6 +1603,8 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 	    NetApiBufferFree(pwzMembersInfo);
 	} while(bReturn == FALSE &&
 		(lastError == ERROR_MORE_DATA ||  resumeHandle != 0));
+	FreeWideName(lpwServer);
+	FreeWideName(lpwGroup);
 #else
 	AllocWideName((char*)SvPV(ST(0),na), lpwServer);
 	AllocWideName((char*)SvPV(ST(1),na), lpwGroup);
@@ -1626,10 +1628,10 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 		NetApiBufferFree(pwzGroupUsers);
 	    }
 	}
-#endif
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
 	FreeWideName(lpwUser);
+#endif
     }
     RETURNRESULT(bReturn);
 }

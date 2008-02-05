@@ -1,5 +1,8 @@
 Revision history for Perl extension Win32::NetAdmin.
 
+0.06  Mon Sep  7 19:47:20 1998
+	- fixed GPF in LocalGroupIsMember()
+
 0.05  Sun May 10 22:39:01 1998
 	- removed broken #ifdefs that disabled UserChangePassword() and
 	  other functions
