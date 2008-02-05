@@ -662,20 +662,19 @@ DWORD GetAccountSIDW(LPCWSTR lpSystemName, LPCWSTR lpAccountName, PSID *pSid)
 }
 
 
-static DWORD lastError = 0;
-
-XS(XS_NT__NetAdmin_GetError)
+static void SetNetAdminLastError(DWORD dwError)
 {
-    dSP;
-    PUSHMARK(sp);
-    XPUSHs(newSViv(lastError));
-    PUTBACK;
+    SV* sv = get_sv("Win32::NetAdmin::__lastError", FALSE);
+    if (sv) {
+	sv_setiv(sv, (IV)dwError);
+    }
 }
 
 XS(XS_NT__NetAdmin_GetDomainController)
 {
     dXSARGS;
     char buffer[512];
+    DWORD lastError = 0;
     LPWSTR lpwServer = NULL, lpwDomain = NULL, lpwPrimaryDC = NULL;
 
     if (items != 3) {
@@ -694,6 +693,7 @@ XS(XS_NT__NetAdmin_GetDomainController)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwDomain);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -701,6 +701,7 @@ XS(XS_NT__NetAdmin_GetAnyDomainController)
 {
     dXSARGS;
     char buffer[512];
+    DWORD lastError = 0;
     LPWSTR lpwServer, lpwDomain, lpwAnyDC = NULL;
 
     if (items != 3) {
@@ -719,6 +720,7 @@ XS(XS_NT__NetAdmin_GetAnyDomainController)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwDomain);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -743,6 +745,7 @@ XS(XS_NT__NetAdmin_UserCreate)
     dXSARGS;
     LPWSTR lpwServer;
     USER_INFO_1 uiUser;
+    DWORD lastError = 0;
 
     if (items != 9) {
 	croak("Usage: Win32::NetAdmin::UserCreate(server, userName, password, "
@@ -767,6 +770,7 @@ XS(XS_NT__NetAdmin_UserCreate)
 	FreeWideName(uiUser.usri1_comment);
 	FreeWideName(uiUser.usri1_script_path);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -774,6 +778,7 @@ XS(XS_NT__NetAdmin_UserDelete)
 {
     dXSARGS;
     LPWSTR lpwServer, lpwUser;
+    DWORD lastError = 0;
 
     if (items != 2) {
 	croak("Usage: Win32::NetAdmin::UserDelete(server, user)\n");
@@ -786,6 +791,7 @@ XS(XS_NT__NetAdmin_UserDelete)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwUser);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -796,6 +802,7 @@ XS(XS_NT__NetAdmin_UserGetAttributes)
     char buffer[UNLEN+1];
     LPWSTR lpwServer, lpwUser;
     PUSER_INFO_1 puiUser;
+    DWORD lastError = 0;
 
     if (items != 9) {
 	croak("Usage: Win32::NetAdmin::UserGetAttributes(server, userName, "
@@ -824,6 +831,7 @@ XS(XS_NT__NetAdmin_UserGetAttributes)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwUser);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -832,6 +840,7 @@ XS(XS_NT__NetAdmin_UserSetAttributes)
     dXSARGS;
     LPWSTR lpwServer;
     USER_INFO_1 uiUser;
+    DWORD lastError = 0;
 
     if (items != 9) {
 	croak("Usage: Win32::NetAdmin::UserSetAttributes(server, userName, "
@@ -857,6 +866,7 @@ XS(XS_NT__NetAdmin_UserSetAttributes)
 	FreeWideName(uiUser.usri1_comment);
 	FreeWideName(uiUser.usri1_script_path);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -867,6 +877,7 @@ XS(XS_NT__NetAdmin_UserChangePassword)
     LPWSTR lpwUserName;
     LPWSTR lpwOldPassword;
     LPWSTR lpwNewPassword;
+    DWORD lastError = 0;
 
     if (items != 4) {
 	croak("Usage: Win32::NetAdmin::UserChangePassword(domainname, "
@@ -884,6 +895,7 @@ XS(XS_NT__NetAdmin_UserChangePassword)
 	FreeWideName(lpwOldPassword);
 	FreeWideName(lpwNewPassword);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -894,6 +906,7 @@ XS(XS_NT__NetAdmin_UsersExist)
     LPWSTR lpwServer, lpwUser;
     PUSER_INFO_0 puiUser;
     BOOL bReturn = FALSE;
+    DWORD lastError = 0;
 
     if (items != 2) {
 	croak("Usage: Win32::NetAdmin::UsersExist(server, userName)\n");
@@ -910,6 +923,7 @@ XS(XS_NT__NetAdmin_UsersExist)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwUser);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(bReturn);
 }
 
@@ -925,6 +939,7 @@ XS(XS_NT__NetAdmin_GetUsers)
     int index;
     SV *sv, *nSv;
     SV *user;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::GetUsers(server, filter, userRef)\n");
@@ -980,6 +995,7 @@ XS(XS_NT__NetAdmin_GetUsers)
 		  "$userRef)\nuserRef was not an array or an hash\n");
 	}
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -994,6 +1010,7 @@ XS(XS_NT__NetAdmin_GetTransports)
     int index;
     SV *sv;
     HV *hvTemp;
+    DWORD lastError = 0;
 
     if (items != 2) {
 	croak("Usage: Win32::NetAdmin::GetTransport(server, transportRef)\n");
@@ -1068,6 +1085,7 @@ XS(XS_NT__NetAdmin_GetTransports)
 		  "$transportRef)\ntransportRef was not an array or hash\n");
 	}
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1085,6 +1103,7 @@ XS(XS_NT__NetAdmin_LoggedOnUsers)
     int index;
     SV *sv, *nSv;
     SV *user;
+    DWORD lastError = 0;
 
     if (items != 2) {
 	croak("Usage: Win32::NetAdmin::LoggedOnUsers(server, $userRef)\n");
@@ -1144,6 +1163,7 @@ XS(XS_NT__NetAdmin_LoggedOnUsers)
 		  "$userRef)\nuserRef was not an array or an hash\n");
 	}
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1152,6 +1172,7 @@ XS(XS_NT__NetAdmin_GroupCreate)
     dXSARGS;
     LPWSTR lpwServer;
     GROUP_INFO_1 groupInfo;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::GroupCreate(server, group, comment)\n");
@@ -1166,6 +1187,7 @@ XS(XS_NT__NetAdmin_GroupCreate)
 	FreeWideName(groupInfo.grpi1_name);
 	FreeWideName(groupInfo.grpi1_comment);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1173,6 +1195,7 @@ XS(XS_NT__NetAdmin_GroupDelete)
 {
     dXSARGS;
     LPWSTR lpwServer, lpwGroup;
+    DWORD lastError = 0;
 
     if (items != 2) {
 	croak("Usage: Win32::NetAdmin::GroupDelete(server, group)\n");
@@ -1185,6 +1208,7 @@ XS(XS_NT__NetAdmin_GroupDelete)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1194,6 +1218,7 @@ XS(XS_NT__NetAdmin_GroupGetAttributes)
     char buffer[UNLEN+1];
     LPWSTR lpwServer, lpwGroup;
     PGROUP_INFO_2 pgroupInfo;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::GroupGetAttributes(server, groupName, comment)\n");
@@ -1212,6 +1237,7 @@ XS(XS_NT__NetAdmin_GroupGetAttributes)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1220,6 +1246,7 @@ XS(XS_NT__NetAdmin_GroupSetAttributes)
     dXSARGS;
     LPWSTR lpwServer;
     GROUP_INFO_2 groupInfo;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::GroupSetAttributes(server, groupName, comment)\n");
@@ -1237,6 +1264,7 @@ XS(XS_NT__NetAdmin_GroupSetAttributes)
 	FreeWideName(groupInfo.grpi2_name);
 	FreeWideName(groupInfo.grpi2_comment);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1247,6 +1275,7 @@ XS(XS_NT__NetAdmin_GroupAddUsers)
     WCHAR wzUser[UNLEN+2];
     int count, index;
     SV *sv, **psv;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::GroupAddUsers(server, groupName, users)\n");
@@ -1283,6 +1312,7 @@ XS(XS_NT__NetAdmin_GroupAddUsers)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1293,6 +1323,7 @@ XS(XS_NT__NetAdmin_GroupDeleteUsers)
     WCHAR wzUser[UNLEN+2];
     int count, index;
     SV *sv, **psv;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::GroupDeleteUsers(server, groupName, users)\n");
@@ -1328,6 +1359,7 @@ XS(XS_NT__NetAdmin_GroupDeleteUsers)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1339,6 +1371,7 @@ XS(XS_NT__NetAdmin_GroupIsMember)
     DWORD entriesRead, totalEntries, resumeHandle = 0;
     int index;
     BOOL bReturn = FALSE;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::GroupIsMember(server, groupName, user)\n");
@@ -1385,6 +1418,7 @@ XS(XS_NT__NetAdmin_GroupIsMember)
 	FreeWideName(lpwGroup);
 	FreeWideName(lpwUser);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(bReturn);
 }
 
@@ -1394,9 +1428,11 @@ XS(XS_NT__NetAdmin_GroupGetMembers)
     LPWSTR lpwServer, lpwGroup;
     char buffer[UNLEN+1];
     PGROUP_USERS_INFO_0 pwzGroupUsers;
-    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    DWORD entriesRead, totalEntries;
+    size_t resumeHandle = 0;
     int index;
     SV *sv, *nSv;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::GroupGetMembers(server, groupName, \\@userArray)\n");
@@ -1433,6 +1469,7 @@ XS(XS_NT__NetAdmin_GroupGetMembers)
 		  "\\@userArray)\nuserArray was not an array\n");
 	}
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1441,6 +1478,7 @@ XS(XS_NT__NetAdmin_LocalGroupCreate)
     dXSARGS;
     LPWSTR lpwServer;
     LOCALGROUP_INFO_1 groupInfo;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::LocalGroupCreate(server, group, comment)\n");
@@ -1455,6 +1493,7 @@ XS(XS_NT__NetAdmin_LocalGroupCreate)
 	FreeWideName(groupInfo.lgrpi1_name);
 	FreeWideName(groupInfo.lgrpi1_comment);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1462,6 +1501,7 @@ XS(XS_NT__NetAdmin_LocalGroupDelete)
 {
     dXSARGS;
     LPWSTR lpwServer, lpwGroup;
+    DWORD lastError = 0;
 
     if (items != 2) {
 	croak("Usage: Win32::NetAdmin::LocalGroupDelete(server, group)\n");
@@ -1474,6 +1514,7 @@ XS(XS_NT__NetAdmin_LocalGroupDelete)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1483,6 +1524,7 @@ XS(XS_NT__NetAdmin_LocalGroupGetAttributes)
     char buffer[UNLEN+1];
     LPWSTR lpwServer, lpwGroup;
     PLOCALGROUP_INFO_1 pgroupInfo;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::LocalGroupGetAttributes(server, groupName, comment)\n");
@@ -1500,6 +1542,7 @@ XS(XS_NT__NetAdmin_LocalGroupGetAttributes)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1508,6 +1551,7 @@ XS(XS_NT__NetAdmin_LocalGroupSetAttributes)
     dXSARGS;
     LPWSTR lpwServer;
     LOCALGROUP_INFO_1 groupInfo;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::LocalGroupSetAttributes(server, groupName, comment)\n");
@@ -1522,6 +1566,7 @@ XS(XS_NT__NetAdmin_LocalGroupSetAttributes)
 	FreeWideName(groupInfo.lgrpi1_name);
 	FreeWideName(groupInfo.lgrpi1_comment);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1533,6 +1578,7 @@ XS(XS_NT__NetAdmin_LocalGroupAddUsers)
     WCHAR wzUser[UNLEN+2];
     int count, index;
     SV *sv, **psv;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::LocalGroupAddUsers(server, groupName, users)\n");
@@ -1571,6 +1617,7 @@ XS(XS_NT__NetAdmin_LocalGroupAddUsers)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1582,6 +1629,7 @@ XS(XS_NT__NetAdmin_LocalGroupDeleteUsers)
     WCHAR wzUser[UNLEN+2];
     int count, index;
     SV *sv, **psv;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::LocalGroupDeleteUsers(server, groupName, users)\n");
@@ -1620,6 +1668,7 @@ XS(XS_NT__NetAdmin_LocalGroupDeleteUsers)
 	FreeWideName(lpwServer);
 	FreeWideName(lpwGroup);
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1627,9 +1676,11 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 {
     dXSARGS;
     LPWSTR lpwServer, lpwGroup, lpwUser;
-    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    DWORD entriesRead, totalEntries;
+    size_t resumeHandle = 0;
     int index;
     BOOL bReturn = FALSE;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::LocalGroupIsMember(server, groupName, user)\n");
@@ -1705,6 +1756,7 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 	FreeWideName(lpwUser);
 #endif
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(bReturn);
 }
 
@@ -1714,9 +1766,11 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembers)
     LPWSTR lpwServer, lpwGroup;
     char buffer[UNLEN+1];
     PLOCALGROUP_MEMBERS_INFO_1 pwzMembersInfo;
-    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    DWORD entriesRead, totalEntries;
+    size_t resumeHandle = 0;
     int index;
     SV *sv, *nSv;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::LocalGroupGetMembers(server, groupName, \\@userArray)\n");
@@ -1754,6 +1808,7 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembers)
 		  "groupName, \\@userArray)\nuserArray was not an array\n");
 	}
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1765,9 +1820,11 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembersWithDomain)
     char buffer[UNLEN+1];
     char buffer1[UNLEN+1];
     PLOCALGROUP_MEMBERS_INFO_2 pwzMembersInfo;
-    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    DWORD entriesRead, totalEntries;
+    size_t resumeHandle = 0;
     int index;
     SV *sv, *nSv;
+    DWORD lastError = 0;
 
     if (items != 3) {
 	croak("Usage: Win32::NetAdmin::LocalGroupGetMembersWithDomain(server, groupName, userRef)\n");
@@ -1829,6 +1886,7 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembersWithDomain)
 		  "groupName, userRef)\nuserRef was not an array or hash reference\n");
 	}
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1843,6 +1901,7 @@ XS(XS_NT__NetAdmin_GetServers)
     DWORD entriesRead, totalEntries, resumeHandle = 0;
     int index;
     SV *sv, *nSv;
+    DWORD lastError = 0;
 
     if (items != 4) {
 	croak("Usage: Win32::NetAdmin::GetServers(server, domain, flags, "
@@ -1906,6 +1965,7 @@ XS(XS_NT__NetAdmin_GetServers)
 		  "$serverRef)\nserverRef was not an array or hash\n");
 	}
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -1919,6 +1979,7 @@ XS(XS_NT__NetAdmin_GetServerDisks)
     DWORD entriesRead, totalEntries, resumeHandle = 0;
     int index;
     SV *sv, *nSv;
+    DWORD lastError = 0;
 
     if (items != 2) {
 	croak("Usage: Win32::NetAdmin::GetServerDisks(server, \\@diskArray)\n");
@@ -1955,6 +2016,7 @@ XS(XS_NT__NetAdmin_GetServerDisks)
 		  "\\@diskArray)\ndiskArray was not an array\n");
 	}
     }
+    SetNetAdminLastError(lastError);
     RETURNRESULT(lastError == 0);
 }
 
@@ -2092,7 +2154,6 @@ XS(boot_Win32__NetAdmin)
     char* file = __FILE__;
 
     newXS("Win32::NetAdmin::constant", XS_NT__NetAdmin_constant, file);
-    newXS("Win32::NetAdmin::GetError", XS_NT__NetAdmin_GetError, file);
     newXS("Win32::NetAdmin::GetDomainController", XS_NT__NetAdmin_GetDomainController, file);
     newXS("Win32::NetAdmin::GetAnyDomainController", XS_NT__NetAdmin_GetAnyDomainController, file);
     newXS("Win32::NetAdmin::UserCreate", XS_NT__NetAdmin_UserCreate, file);

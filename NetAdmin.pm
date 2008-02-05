@@ -5,7 +5,7 @@ package Win32::NetAdmin;
 #Written by Douglas_Lankshear@ActiveWare.com
 #
 
-$VERSION = '0.07';
+$VERSION = '0.08';
 
 require Exporter;
 require DynaLoader;
@@ -145,11 +145,18 @@ network.
 
 =head2 NOTE
 
-All of the functions return FALSE (0) if they fail, unless otherwise noted.
+All of the functions return false if they fail, unless otherwise noted.
+When a function fails call Win32::NetAdmin::GetError() rather than
+GetLastError() or $^E to retrieve the error code.
+
 C<server> is optional for all the calls below. If not given the local machine is
 assumed.
 
 =over 10
+
+=item GetError()
+
+Returns the error code of the last call to this module.
 
 =item GetDomainController(server, domain, returnedName)
 
@@ -398,6 +405,11 @@ $SidTypeWellKnownGroup = 5;
 $SidTypeDeletedAccount = 6;
 $SidTypeInvalid = 7;
 $SidTypeUnknown = 8;
+
+sub GetError() {
+    our $__lastError;
+    $__lastError;
+}
 
 bootstrap Win32::NetAdmin;
 
