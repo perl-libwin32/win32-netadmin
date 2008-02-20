@@ -45,7 +45,7 @@
 #  define W2AHELPER(lpw, lpa, nChars)	W2AHELPER_LEN(lpw, -1, lpa, nChars)
 #endif
 
-#include "../ppport.h"
+#include "ppport.h"
 
 #define RETURNRESULT(x)		if ((x)){ XST_mYES(0); }\
                      		else { XST_mNO(0); }\
