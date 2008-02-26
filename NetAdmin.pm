@@ -131,7 +131,7 @@ $EXPORT_TAGS{ALL}= \@EXPORT_OK;
 
 =head1 NAME
 
-Win32::NetAdmin - manage network groups and users in perl
+Win32::NetAdmin - Manage network groups and users in Perl
 
 =head1 SYNOPSIS
 
