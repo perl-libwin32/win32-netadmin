@@ -1,5 +1,12 @@
 Revision history for Perl extension Win32::NetAdmin.
 
+0.09  Tue Apr 15 2008
+	- version 0.09 for separate upload to CPAN
+	- updated email addresses
+	- simplified Makefile.PL
+	- added META.yml
+	- added ppport.h
+
 0.08  Mon May 22 21:22:33 2000
 	- move last error variable to interpreter (thanks to
 	  Doug Lankshear <doug@lankshear.net>)
