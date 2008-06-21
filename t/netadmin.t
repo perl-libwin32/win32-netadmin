@@ -1,84 +1,65 @@
-#test for Perl NetAdmin Module Extension.
-#Written by Douglas_Lankshear@ActiveWare.com
+use strict;
+use warnings;
+
+use Test;
 
 BEGIN {
-    require Win32 unless defined &Win32::IsWin95;
-    if (Win32::IsWin95) {
-	print"1..0 # skip This module does not work on Win95\n";
+    eval {require Win32};
+    unless (defined &Win32::IsAdminUser && Win32::IsAdminUser()) {
+	print"1..0 # skip Must be running as an administrator\n";
 	exit 0;
     }
 };
 
-use Win32::NetAdmin;
+use Win32::NetAdmin qw(:DEFAULT UserCreate UserDelete UserGetAttributes
+		       LocalGroupCreate LocalGroupGetAttributes LocalGroupAddUsers
+		       LocalGroupIsMember LocalGroupDelete);
 
-Win32::NetAdmin::GetDomainController('', '', $serverName);
+my $serverName   = '';
+my $userName     = 'TestUser';
+my $password     = 'password';
+my $passwordAge  = 0;
+my $privilege    = USER_PRIV_USER;
+my $homeDir      = 'c:\\';
+my $comment      = 'This is a test user';
+my $flags        = UF_SCRIPT;
+my $scriptpath   = 'C:\\';
+my $groupName    = 'TestGroup';
+my $groupComment = "This is a test group";
 
-$serverName = '';
-$userName = 'TestUser';
-$password = 'password';
-$passwordAge = 0;
-$privilege = USER_PRIV_USER;
-$homeDir = 'c:\\';
-$comment = 'This is a test user';
-$flags = UF_SCRIPT;
-$scriptpath = 'C:\\';
-$groupName = 'TestGroup';
-$groupComment = "This is a test group";
+plan tests => 15;
 
-print "1..15\n";
+ok(UserCreate($serverName, $userName, $password, $passwordAge, $privilege,
+	      $homeDir, $comment, $flags, $scriptpath));
 
-# TODO: Check to make sure current account has rights to Create user accounts etc.
+ok(UserGetAttributes($serverName, $userName,
+		     my $Getpassword, my $GetpasswordAge, my $Getprivilege,
+		     my $GethomeDir, my $Getcomment, my $Getflags, my $Getscriptpath));
 
-Win32::NetAdmin::UserCreate($serverName, $userName, $password, $passwordAge, $privilege, $homeDir, $comment, $flags, $scriptpath) || print "not ";
-print "ok 1\n";
+ok($passwordAge <= $GetpasswordAge && $passwordAge+5 >= $GetpasswordAge);
 
-Win32::NetAdmin::UserGetAttributes($serverName, $userName, my $getpassword, $GetpasswordAge, $Getprivilege, $GethomeDir, $Getcomment, $Getflags, $Getscriptpath) || print "not ";
-print "ok 2\n";
-
-($passwordAge <= $GetpasswordAge && $passwordAge+5 >= $GetpasswordAge) || print "not ";
-print "ok 3\n";
-
-if($serverName eq '')
-{
-	# on a server this will be zero
-	($Getprivilege == 0) || print "not ";
+if ($serverName eq '') {
+    # on a server this will be zero
+    ok($Getprivilege == 0);
 }
-else
-{
-	($privilege == $Getprivilege) || print "not ";
+else {
+    ok($privilege == $Getprivilege);
 }
-print "ok 4\n";
 
-($homeDir eq $GethomeDir) || print "not ";
-print "ok 5\n";
+ok($homeDir, $GethomeDir);
+ok($comment, $Getcomment);
+ok($flags == ($Getflags&USER_PRIV_MASK));
+ok($scriptpath, $Getscriptpath);
 
-($comment eq $Getcomment) || print "not ";
-print "ok 6\n";
+ok(LocalGroupCreate($serverName, $groupName, $groupComment));
 
-($flags == ($Getflags&USER_PRIV_MASK)) || print "not ";
-print "ok 7\n";
+ok(LocalGroupGetAttributes($serverName, $groupName, my $GetgroupComment));
+ok($groupComment, $GetgroupComment);
 
-($scriptpath eq $Getscriptpath) || print "not ";
-print "ok 8\n";
+ok(LocalGroupAddUsers($serverName, $groupName, $userName));
 
-Win32::NetAdmin::LocalGroupCreate($serverName, $groupName, $groupComment) || print "not ";
-print "ok 9\n";
+ok(LocalGroupIsMember($serverName, $groupName, $userName));
 
-Win32::NetAdmin::LocalGroupGetAttributes($serverName, $groupName, $GetgroupComment) || print "not ";
-print "ok 10\n";
+ok(LocalGroupDelete($serverName, $groupName));
 
-($groupComment eq $GetgroupComment) || print "not ";
-print "ok 11\n";
-
-Win32::NetAdmin::LocalGroupAddUsers($serverName, $groupName, $userName) || print "not ";
-print "ok 12\n";
-
-Win32::NetAdmin::LocalGroupIsMember($serverName, $groupName, $userName) || print "not ";
-print "ok 13\n";
-
-Win32::NetAdmin::LocalGroupDelete($serverName, $groupName) || print "not ";
-print "ok 14\n";
-
-Win32::NetAdmin::UserDelete($serverName, $userName) || print "not ";
-print "ok 15\n";
-
+ok(UserDelete($serverName, $userName));
