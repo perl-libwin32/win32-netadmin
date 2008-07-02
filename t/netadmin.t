@@ -5,11 +5,15 @@ use Test;
 
 BEGIN {
     eval {require Win32};
+    unless (defined &Win32::IsWinNT && Win32::IsWinNT()) {
+        print"1..0 # skip Win32::NetAdmin only works on Windows NT and later\n";
+	exit 0;
+    }
     unless (defined &Win32::IsAdminUser && Win32::IsAdminUser()) {
 	print"1..0 # skip Must be running as an administrator\n";
 	exit 0;
     }
-};
+}
 
 use Win32::NetAdmin qw(:DEFAULT UserCreate UserDelete UserGetAttributes
 		       LocalGroupCreate LocalGroupGetAttributes LocalGroupAddUsers

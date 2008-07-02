@@ -1,5 +1,8 @@
 Revision history for Perl extension Win32::NetAdmin.
 
+0.11  Wed Jul 02 2008
+        - Skip tests when running on Windows 95.
+
 0.10  Mon Jun 23 2008
         - Skip tests when not running as an administrator.
 
