@@ -296,7 +296,7 @@ reference then a hash of hashes is filled with the data for the transports.
 =item LoggedOnUsers(server, userRef)
 
 Gets an array or hash with the users logged on at the specified computer. If
-userRef is a hash reference, the value is a semikolon separated string of
+userRef is a hash reference, the value is a semicolon separated string of
 username, logon domain and logon server.
 
 =item GetAliasFromRID(server, RID, returnedName)
