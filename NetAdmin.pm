@@ -5,7 +5,7 @@ package Win32::NetAdmin;
 #Written by Douglas_Lankshear@ActiveWare.com
 #
 
-$VERSION = '0.11';
+$VERSION = '0.12';
 
 require Exporter;
 require DynaLoader;
@@ -375,6 +375,11 @@ contains two-character strings (drive letter followed by a colon).
 		or die "UserSetAttributes() failed: $^E";
 	}
     }
+
+=head1 LICENSE
+
+This library is free software and may be distributed under the same terms
+as perl itself.
 
 =cut
 
