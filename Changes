@@ -1,5 +1,10 @@
 Revision history for Perl extension Win32::NetAdmin.
 
+0.13  Tue Oct 21 2014
+        - Change resumeHandle variable type to DWORD_PTR
+          (thanks to Mark J Hewitt) [pr#5] [rt#99461]
+          [https://bugs.activestate.com/show_bug.cgi?id=100108]
+
 0.12  Thu Nov 28 2013
 	- Fix required perl version 5.6 -> 5.006.
 	- Add Github repo link to META.yml
