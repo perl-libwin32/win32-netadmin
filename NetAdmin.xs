@@ -15,7 +15,7 @@
  * Added LocalGroupGetMembersWithDomain
  *    98.02.13 david.gardiner@unisa.edu.au
  *
- * Updated 64-bit data types in Wi32 API calls
+ * Updated 64-bit data types in Win32 API calls
  *    14.10.21 m.hewitt@computer.org
  */
 
