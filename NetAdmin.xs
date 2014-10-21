@@ -14,6 +14,9 @@
  *
  * Added LocalGroupGetMembersWithDomain
  *    98.02.13 david.gardiner@unisa.edu.au
+ *
+ * Updated 64-bit data types in Wi32 API calls
+ *    14.10.21 m.hewitt@computer.org
  */
 
 #define WIN32_LEAN_AND_MEAN
@@ -1377,7 +1380,8 @@ XS(XS_NT__NetAdmin_GroupIsMember)
     dXSARGS;
     LPWSTR lpwServer, lpwGroup, lpwUser;
     PGROUP_USERS_INFO_0 pwzGroupUsers;
-    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    DWORD entriesRead, totalEntries;
+    DWORD_PTR resumeHandle = 0;
     DWORD index;
     BOOL bReturn = FALSE;
     DWORD lastError = 0;
@@ -1438,7 +1442,7 @@ XS(XS_NT__NetAdmin_GroupGetMembers)
     char buffer[UNLEN+1];
     PGROUP_USERS_INFO_0 pwzGroupUsers;
     DWORD entriesRead, totalEntries;
-    DWORD resumeHandle = 0;
+    DWORD_PTR resumeHandle = 0;
     DWORD index;
     SV *sv;
     DWORD lastError = 0;
@@ -1686,7 +1690,7 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
     dXSARGS;
     LPWSTR lpwServer, lpwGroup;
     DWORD entriesRead, totalEntries;
-    DWORD resumeHandle = 0;
+    DWORD_PTR resumeHandle = 0;
     DWORD index;
     BOOL bReturn = FALSE;
     DWORD lastError = 0;
@@ -1766,7 +1770,7 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembers)
     char buffer[UNLEN+1];
     PLOCALGROUP_MEMBERS_INFO_1 pwzMembersInfo;
     DWORD entriesRead, totalEntries;
-    DWORD resumeHandle = 0;
+    DWORD_PTR resumeHandle = 0;
     DWORD index;
     SV *sv;
     DWORD lastError = 0;
@@ -1820,7 +1824,7 @@ XS(XS_NT__NetAdmin_LocalGroupGetMembersWithDomain)
     char buffer1[UNLEN+1];
     PLOCALGROUP_MEMBERS_INFO_2 pwzMembersInfo;
     DWORD entriesRead, totalEntries;
-    DWORD resumeHandle = 0;
+    DWORD_PTR resumeHandle = 0;
     DWORD index;
     SV *sv;
     DWORD lastError = 0;
