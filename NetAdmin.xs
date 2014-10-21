@@ -949,7 +949,8 @@ XS(XS_NT__NetAdmin_GetUsers)
     char buffer1[UNLEN+1];
     PUSER_INFO_0 pwzUsers;
     PUSER_INFO_10 pwzUsers10;
-    DWORD filter, entriesRead, totalEntries, resumeHandle = 0;
+    DWORD filter, entriesRead, totalEntries;
+    DWORD_PTR resumeHandle = 0;
     DWORD index;
     SV *sv;
     DWORD lastError = 0;
@@ -1019,7 +1020,8 @@ XS(XS_NT__NetAdmin_GetTransports)
     char buffer[UNLEN+1];
     char buffer1[UNLEN+1];
     PWKSTA_TRANSPORT_INFO_0 pws;
-    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    DWORD entriesRead, totalEntries;
+    DWORD_PTR resumeHandle = 0;
     DWORD index;
     SV *sv;
     HV *hvTemp;
@@ -1112,7 +1114,8 @@ XS(XS_NT__NetAdmin_LoggedOnUsers)
     char logon_server[UNLEN+1];
     PWKSTA_USER_INFO_0 pwzUser0;
     PWKSTA_USER_INFO_1 pwzUser1;
-    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    DWORD entriesRead, totalEntries;
+    DWORD_PTR resumeHandle = 0;
     DWORD index;
     SV *sv;
     DWORD lastError = 0;
@@ -1901,7 +1904,8 @@ XS(XS_NT__NetAdmin_GetServers)
     char buffer1[UNLEN+1];
     PSERVER_INFO_100 pwzServerInfo;
     PSERVER_INFO_101 pwzServerInfo101;
-    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    DWORD entriesRead, totalEntries;
+    DWORD_PTR resumeHandle = 0;
     DWORD index;
     SV *sv;
     DWORD lastError = 0;
@@ -1979,7 +1983,8 @@ XS(XS_NT__NetAdmin_GetServerDisks)
     char buffer[256];
     LPWSTR disks;
     LPWSTR p;
-    DWORD entriesRead, totalEntries, resumeHandle = 0;
+    DWORD entriesRead, totalEntries;
+    DWORD_PTR resumeHandle = 0;
     DWORD index;
     SV *sv;
     DWORD lastError = 0;
