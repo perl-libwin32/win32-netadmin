@@ -34,11 +34,13 @@ my $groupComment = "This is a test group";
 plan tests => 15;
 
 ok(UserCreate($serverName, $userName, $password, $passwordAge, $privilege,
-	      $homeDir, $comment, $flags, $scriptpath));
+	      $homeDir, $comment, $flags, $scriptpath))
+  or warn "Test encountered error: ".Win32::FormatMessage(Win32::NetAdmin::GetError()) ;
 
 ok(UserGetAttributes($serverName, $userName,
 		     my $Getpassword, my $GetpasswordAge, my $Getprivilege,
-		     my $GethomeDir, my $Getcomment, my $Getflags, my $Getscriptpath));
+		     my $GethomeDir, my $Getcomment, my $Getflags, my $Getscriptpath))
+  or warn "Test encountered error: ".Win32::FormatMessage(Win32::NetAdmin::GetError()) ;
 
 ok($passwordAge <= $GetpasswordAge && $passwordAge+5 >= $GetpasswordAge);
 
@@ -55,15 +57,21 @@ ok($comment, $Getcomment);
 ok($flags == ($Getflags&USER_PRIV_MASK));
 ok($scriptpath, $Getscriptpath);
 
-ok(LocalGroupCreate($serverName, $groupName, $groupComment));
+ok(LocalGroupCreate($serverName, $groupName, $groupComment))
+  or warn "Test encountered error: ".Win32::FormatMessage(Win32::NetAdmin::GetError()) ;
 
-ok(LocalGroupGetAttributes($serverName, $groupName, my $GetgroupComment));
+ok(LocalGroupGetAttributes($serverName, $groupName, my $GetgroupComment))
+  or warn "Test encountered error: ".Win32::FormatMessage(Win32::NetAdmin::GetError()) ;
 ok($groupComment, $GetgroupComment);
 
-ok(LocalGroupAddUsers($serverName, $groupName, $userName));
+ok(LocalGroupAddUsers($serverName, $groupName, $userName))
+  or warn "Test encountered error: ".Win32::FormatMessage(Win32::NetAdmin::GetError()) ;
 
-ok(LocalGroupIsMember($serverName, $groupName, $userName));
+ok(LocalGroupIsMember($serverName, $groupName, $userName))
+  or warn "Test encountered error: ".Win32::FormatMessage(Win32::NetAdmin::GetError()) ;
 
-ok(LocalGroupDelete($serverName, $groupName));
+ok(LocalGroupDelete($serverName, $groupName))
+  or warn "Test encountered error: ".Win32::FormatMessage(Win32::NetAdmin::GetError()) ;
 
-ok(UserDelete($serverName, $userName));
+ok(UserDelete($serverName, $userName))
+  or warn "Test encountered error: ".Win32::FormatMessage(Win32::NetAdmin::GetError()) ;
