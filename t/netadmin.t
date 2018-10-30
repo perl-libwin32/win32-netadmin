@@ -21,7 +21,7 @@ use Win32::NetAdmin qw(:DEFAULT UserCreate UserDelete UserGetAttributes
 
 my $serverName   = '';
 my $userName     = 'TestUser';
-my $password     = 'password';
+my $password     = 'pa55w0r&';
 my $passwordAge  = 0;
 my $privilege    = USER_PRIV_USER;
 my $homeDir      = 'c:\\';
