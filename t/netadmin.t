@@ -7,17 +7,17 @@ BEGIN {
     eval {require Win32};
     unless (defined &Win32::IsWinNT && Win32::IsWinNT()) {
         print"1..0 # skip Win32::NetAdmin only works on Windows NT and later\n";
-	exit 0;
+  exit 0;
     }
     unless (defined &Win32::IsAdminUser && Win32::IsAdminUser()) {
-	print"1..0 # skip Must be running as an administrator\n";
-	exit 0;
+  print"1..0 # skip Must be running as an administrator\n";
+  exit 0;
     }
 }
 
 use Win32::NetAdmin qw(:DEFAULT UserCreate UserDelete UserGetAttributes
-		       LocalGroupCreate LocalGroupGetAttributes LocalGroupAddUsers
-		       LocalGroupIsMember LocalGroupDelete);
+           LocalGroupCreate LocalGroupGetAttributes LocalGroupAddUsers
+           LocalGroupIsMember LocalGroupDelete);
 
 my $serverName   = '';
 my $userName     = 'TestUser';
@@ -34,12 +34,12 @@ my $groupComment = "This is a test group";
 plan tests => 15;
 
 ok(UserCreate($serverName, $userName, $password, $passwordAge, $privilege,
-	      $homeDir, $comment, $flags, $scriptpath))
+        $homeDir, $comment, $flags, $scriptpath))
   or warn "\nTest encountered error:\n\t".Win32::FormatMessage(Win32::NetAdmin::GetError()) ;
 
 ok(UserGetAttributes($serverName, $userName,
-		     my $Getpassword, my $GetpasswordAge, my $Getprivilege,
-		     my $GethomeDir, my $Getcomment, my $Getflags, my $Getscriptpath))
+         my $Getpassword, my $GetpasswordAge, my $Getprivilege,
+         my $GethomeDir, my $Getcomment, my $Getflags, my $Getscriptpath))
   or warn "\nTest encountered error:\n\t".Win32::FormatMessage(Win32::NetAdmin::GetError()) ;
 
 ok($passwordAge <= $GetpasswordAge && $passwordAge+5 >= $GetpasswordAge);

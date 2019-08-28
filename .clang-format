@@ -1,0 +1,5 @@
+---
+Language: Cpp
+BasedOnStyle: Mozilla
+IndentWidth: 4
+SortIncludes: false
