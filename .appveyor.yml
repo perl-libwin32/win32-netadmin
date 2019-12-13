@@ -1,0 +1,42 @@
+version: '{build}'
+shallow_clone: true
+
+matrix:
+  fast_finish: true
+
+environment:
+  matrix:
+    - perl_type: strawberry
+      perl_version: 5.30.1.1
+    - perl_type: strawberry
+      perl_version: 5.28.2.1
+    - perl_type: strawberry
+      perl_version: 5.26.3.1
+    - perl_type: strawberry
+      perl_version: 5.24.4.1
+    - perl_type: strawberry
+      perl_version: 5.22.3.1
+    - perl_type: strawberry
+      perl_version: 5.20.3.3
+    - perl_type: strawberry
+      perl_version: 5.18.4.1
+    - perl_type: strawberry
+      perl_version: 5.16.3.20170202
+    - perl_type: strawberry
+      perl_version: 5.14.4.1
+    - perl_type: strawberry
+      perl_version: 5.12.3.20180709
+    - perl_type: strawberry
+      perl_version: 5.10.1.5
+    - perl_type: strawberry
+      perl_version: 5.8.9.5
+
+install:
+  - 'call .appveyor.cmd perl_setup'
+  - '%perl% -V'
+  - '%cpanm% --installdeps -n .'
+
+build: off
+
+test_script:
+  - '%cpanm% --test-only -v .'
