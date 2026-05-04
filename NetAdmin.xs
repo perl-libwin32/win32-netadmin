@@ -1731,30 +1731,25 @@ XS(XS_NT__NetAdmin_LocalGroupIsMember)
 	AllocWideName((char*)SvPV(ST(0),n_a), lpwServer);
 	AllocWideName((char*)SvPV(ST(1),n_a), lpwGroup);
 	do {
-	    PLOCALGROUP_MEMBERS_INFO_0 pwzMembersInfo;
-	    pwzMembersInfo = NULL;
+	    PLOCALGROUP_MEMBERS_INFO_0 pwzMembersInfo = NULL;
 	    lastError = NetLocalGroupGetMembers(lpwServer, lpwGroup, 0,
 						(LPBYTE*)&pwzMembersInfo,
 		    				PREFLEN, &entriesRead,
 						&totalEntries, &resumeHandle);
 	    if (lastError != 0 && lastError != ERROR_MORE_DATA) {
-	        if (pwzMembersInfo != NULL) {
+		if (pwzMembersInfo != NULL)
 		    NetApiBufferFree(pwzMembersInfo);
-	        }
 		break;
 	    }
-
-            if (bReturn == FALSE) {
-                for (index = 0; index < entriesRead; ++index) {
-                    if (EqualSid(pSid, pwzMembersInfo[index].lgrmi0_sid) != 0){
-		      bReturn = TRUE;
-		      break;
-		    }
-	        }
-	    }
+	    for (index = 0; index < entriesRead; ++index)
+		if (EqualSid(pSid, pwzMembersInfo[index].lgrmi0_sid) != 0) {
+		    bReturn = TRUE;
+		    break;
+		}
 
 	    NetApiBufferFree(pwzMembersInfo);
-	} while(lastError == ERROR_MORE_DATA || resumeHandle != 0);
+	} while(bReturn == FALSE &&
+		(lastError == ERROR_MORE_DATA || resumeHandle != 0));
 
 	free(pSid);
 	FreeWideName(lpwServer);
