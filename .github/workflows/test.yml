@@ -1,0 +1,11 @@
+name: test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    uses: perl-libwin32/.github/.github/workflows/test.yml@v1
