@@ -2173,7 +2173,11 @@ XS(XS_NT__NetAdmin_GetUserGroupFromRID)
     RETURNRESULT(bSuccess);
 }
 
-XS(boot_Win32__NetAdmin)
+/* Force C linkage on the boot symbol so XSLoader/DynaLoader can find
+ * it by its unmangled name when the file is compiled as C++ (e.g.,
+ * Cygwin g++). The XS() macro alone does not declare extern "C".
+ */
+EXTERN_C XS(boot_Win32__NetAdmin)
 {
     dXSARGS;
     char* file = __FILE__;
