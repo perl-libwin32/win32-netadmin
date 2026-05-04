@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Win32-NetAdmin
-abstract: Manage network groups and users in Perl
+abstract: Manage network groups and users
 version: 0.13
 author:
   - Jan Dubois <jan@jandubois.com>
