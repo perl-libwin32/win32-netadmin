@@ -5,7 +5,7 @@
 - Fix memory leak in LocalGroupIsMember by [@ms-rs](https://github.com/ms-rs) [#8](https://github.com/perl-libwin32/win32-netadmin/pull/8)
 - Restore early-exit and tab indentation in LocalGroupIsMember loop [#13](https://github.com/perl-libwin32/win32-netadmin/pull/13)
 - Fix Cygwin g++ build of Net*Enum resume-handle arguments [#12](https://github.com/perl-libwin32/win32-netadmin/pull/12)
-- Improve test reliability on Windows Server by Florian Manschwetus [#6](https://github.com/perl-libwin32/win32-netadmin/pull/6)
+- Improve test reliability on Windows Server by Florian Manschwetus ([@manschwetusCF](https://github.com/manschwetusCF)) [#6](https://github.com/perl-libwin32/win32-netadmin/pull/6)
 - Move repository to perl-libwin32 organization [#10](https://github.com/perl-libwin32/win32-netadmin/pull/10)
 - Add LICENSE and README.md [#14](https://github.com/perl-libwin32/win32-netadmin/pull/14)
 
